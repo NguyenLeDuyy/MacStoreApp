@@ -5,6 +5,10 @@ import 'package:mac_store_app/views/authentication_screens/login_screen.dart';
 class RegisterScreen extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  late String name;
+  late String email;
+  late String password;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,9 +61,12 @@ class RegisterScreen extends StatelessWidget {
                   ),
               
                   TextFormField(
+                    onChanged: (value){
+                      name = value;
+                    },
                     validator: (value){
                       if (value!.isEmpty){
-                        return "Enter your email";
+                        return "Enter your name";
                       }
                       else {
                         return null;
@@ -105,6 +112,9 @@ class RegisterScreen extends StatelessWidget {
                   ),
               
                   TextFormField(
+                    onChanged: (value){
+                      email = value;
+                    },
                     validator: (value){
                       if(value!.isEmpty) {
                         return 'Enter your email';
@@ -154,6 +164,9 @@ class RegisterScreen extends StatelessWidget {
                   ),
               
                   TextFormField(
+                    onChanged: (value){
+                      password = value;
+                    },
                     validator: (value){
                       if(value!.isEmpty) {
                         return 'Enter your password';
@@ -193,7 +206,9 @@ class RegisterScreen extends StatelessWidget {
                   InkWell(
                     onTap: (){
                       if (_formKey.currentState!.validate()){
-                        print("correct");
+                        print(name);
+                        print(email);
+                        print(password);
                       }
                       else {
                         print("failed");;
