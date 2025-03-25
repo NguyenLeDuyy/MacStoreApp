@@ -3,12 +3,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/controllers/auth_controller.dart';
 import 'package:mac_store_app/views/authentication_screens/login_screen.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   final AuthController _authController = AuthController();
 
   late String fullName;
+
   late String email;
+
   late String password;
 
   @override
@@ -43,13 +51,13 @@ class RegisterScreen extends StatelessWidget {
                       letterSpacing: 0.2,
                     ),
                   ),
-              
+
                   Image.asset(
                     'assets/images/Illustration.png',
                     width: 200,
                     height: 200,
                   ),
-              
+
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
@@ -61,7 +69,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   TextFormField(
                     onChanged: (value){
                       fullName = value;
@@ -98,9 +106,9 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   SizedBox(height: 20),
-              
+
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
@@ -112,7 +120,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   TextFormField(
                     onChanged: (value){
                       email = value;
@@ -146,13 +154,13 @@ class RegisterScreen extends StatelessWidget {
                           height: 20,
                         ),
                       ),
-              
+
                       suffixIcon: Icon(Icons.visibility),
                     ),
                   ),
-              
+
                   SizedBox(height: 20),
-              
+
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
@@ -164,7 +172,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   TextFormField(
                     onChanged: (value){
                       password = value;
@@ -198,13 +206,13 @@ class RegisterScreen extends StatelessWidget {
                           height: 20,
                         ),
                       ),
-              
+
                       suffixIcon: Icon(Icons.visibility),
                     ),
                   ),
-              
+
                   SizedBox(height: 20),
-              
+
                   InkWell(
                     onTap: (){
                       if (_formKey.currentState!.validate()){
@@ -235,9 +243,9 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   SizedBox(height: 20),
-              
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

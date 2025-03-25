@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/views/authentication_screens/register_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   late String email;
+
   late String password;
 
   @override
@@ -40,13 +46,13 @@ class LoginScreen extends StatelessWidget {
                       letterSpacing: 0.2,
                     ),
                   ),
-              
+
                   Image.asset(
                     'assets/images/Illustration.png',
                     width: 200,
                     height: 200,
                   ),
-              
+
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
@@ -58,7 +64,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   TextFormField(
                     onChanged: (value){
                       email = value;
@@ -94,9 +100,9 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   SizedBox(height: 20),
-              
+
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
@@ -108,7 +114,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   TextFormField(
                     onChanged: (value){
                       password = value;
@@ -142,13 +148,13 @@ class LoginScreen extends StatelessWidget {
                           height: 20,
                         ),
                       ),
-              
+
                       suffixIcon: Icon(Icons.visibility),
                     ),
                   ),
-              
+
                   SizedBox(height: 20),
-              
+
                   InkWell(
                     onTap: (){
                       if (_formKey.currentState!.validate()){
@@ -180,9 +186,9 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   SizedBox(height: 20),
-              
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
