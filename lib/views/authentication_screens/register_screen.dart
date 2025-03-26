@@ -19,6 +19,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   late String password;
 
+  registerUser() async {
+    BuildContext localContext = context;
+
+    String res = await _authController.registerNewUser(
+      email,
+      fullName,
+      password,
+    );
+    if (res == 'success') {
+      Future.delayed(Duration.zero, () {
+        Navigator.push(
+          localContext,
+          MaterialPageRoute(
+            builder: (context) {
+              return LoginScreen();
+            },
+          ),
+        );
+        ScaffoldMessenger.of(localContext).showSnackBar(
+          SnackBar(
+            content: Text('Congratulation account has been created for you'),
+          ),
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,14 +98,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
 
                   TextFormField(
-                    onChanged: (value){
+                    onChanged: (value) {
                       fullName = value;
                     },
-                    validator: (value){
-                      if (value!.isEmpty){
+                    validator: (value) {
+                      if (value!.isEmpty) {
                         return "Enter your name";
-                      }
-                      else {
+                      } else {
                         return null;
                       }
                     },
@@ -122,11 +148,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
 
                   TextFormField(
-                    onChanged: (value){
+                    onChanged: (value) {
                       email = value;
                     },
-                    validator: (value){
-                      if(value!.isEmpty) {
+                    validator: (value) {
+                      if (value!.isEmpty) {
                         return 'Enter your email';
                       } else {
                         return null;
@@ -174,11 +200,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
 
                   TextFormField(
-                    onChanged: (value){
+                    onChanged: (value) {
                       password = value;
                     },
-                    validator: (value){
-                      if(value!.isEmpty) {
+                    validator: (value) {
+                      if (value!.isEmpty) {
                         return 'Enter your password';
                       } else {
                         return null;
@@ -214,12 +240,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   SizedBox(height: 20),
 
                   InkWell(
-                    onTap: (){
+                    onTap: () {
                       if (_formKey.currentState!.validate()){
-                        _authController.registerNewUser(email, fullName, password);
-                      }
-                      else {
-                        print("failed");
+                        registerUser();
                       }
                     },
                     child: Container(
@@ -257,10 +280,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       InkWell(
-                        onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context){
-                            return LoginScreen();
-                          }));
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return LoginScreen();
+                              },
+                            ),
+                          );
                         },
                         child: Text(
                           'Sign In',
