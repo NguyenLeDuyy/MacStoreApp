@@ -1,15 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/controllers/auth_controller.dart';
-import 'package:mac_store_app/views/authentication_screens/login_screen.dart';
+import 'package:mac_store_app/views/screens/authentication_screens/register_screen.dart';
 
-class RegisterScreen extends StatelessWidget {
+import '../main_screen.dart';
+
+class LoginScreen extends StatefulWidget {
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final AuthController _authController = AuthController();
 
-  late String fullName;
   late String email;
+
   late String password;
+
+  loginUser() async {
+    String res = await _authController.loginUser(email, password);
+    if(res == 'success'){
+      ///Go to the main screen
+      ///
+      Future.delayed(Duration.zero, () {
+        Navigator.push(context, MaterialPageRoute(builder: (context){
+          return MainScreen();
+         }));
+
+        //we want to show a message to the user to tell them they have logged in
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Logged in')));
+
+       });
+      print('Logged in');
+    }
+    else {
+      print(res);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +53,7 @@ class RegisterScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Create Your Account",
+                    "Login Your Account",
                     style: GoogleFonts.getFont(
                       'Lato',
                       color: Color(0xFF0d120E),
@@ -43,64 +71,13 @@ class RegisterScreen extends StatelessWidget {
                       letterSpacing: 0.2,
                     ),
                   ),
-              
+
                   Image.asset(
                     'assets/images/Illustration.png',
                     width: 200,
                     height: 200,
                   ),
-              
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      'Full name',
-                      style: GoogleFonts.getFont(
-                        'Nunito Sans',
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                  ),
-              
-                  TextFormField(
-                    onChanged: (value){
-                      fullName = value;
-                    },
-                    validator: (value){
-                      if (value!.isEmpty){
-                        return "Enter your name";
-                      }
-                      else {
-                        return null;
-                      }
-                    },
-                    decoration: InputDecoration(
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(9),
-                      ),
-                      focusedBorder: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      labelText: "Enter your full name",
-                      labelStyle: GoogleFonts.getFont(
-                        "Nunito Sans",
-                        fontSize: 14,
-                        letterSpacing: 0.1,
-                      ),
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Image.asset(
-                          'assets/icons/user.jpeg',
-                          width: 20,
-                          height: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-              
-                  SizedBox(height: 20),
-              
+
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
@@ -112,7 +89,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   TextFormField(
                     onChanged: (value){
                       email = value;
@@ -141,18 +118,16 @@ class RegisterScreen extends StatelessWidget {
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Image.asset(
-                          'assets/icons/password.png',
+                          'assets/icons/email.png',
                           width: 20,
                           height: 20,
                         ),
                       ),
-              
-                      suffixIcon: Icon(Icons.visibility),
                     ),
                   ),
-              
+
                   SizedBox(height: 20),
-              
+
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
@@ -164,7 +139,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   TextFormField(
                     onChanged: (value){
                       password = value;
@@ -198,20 +173,20 @@ class RegisterScreen extends StatelessWidget {
                           height: 20,
                         ),
                       ),
-              
+
                       suffixIcon: Icon(Icons.visibility),
                     ),
                   ),
-              
-                  SizedBox(height: 20),
-              
+
+                  const SizedBox(height: 20),
+
                   InkWell(
                     onTap: (){
                       if (_formKey.currentState!.validate()){
-                        _authController.registerNewUser(email, fullName, password);
+                        loginUser();
                       }
                       else {
-                        print("failed");
+                        print("failed");;
                       }
                     },
                     child: Container(
@@ -219,13 +194,13 @@ class RegisterScreen extends StatelessWidget {
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [Color(0xFF102DE1), Color(0xCC0D6EFF)],
                         ),
                       ),
                       child: Center(
                         child: Text(
-                          'Sign up',
+                          'Sign in',
                           style: GoogleFonts.getFont(
                             'Lato',
                             fontSize: 17,
@@ -235,14 +210,14 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-              
+
                   SizedBox(height: 20),
-              
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Already have an account?',
+                        'Need an account?',
                         style: GoogleFonts.roboto(
                           fontWeight: FontWeight.w500,
                           letterSpacing: 1,
@@ -251,11 +226,11 @@ class RegisterScreen extends StatelessWidget {
                       InkWell(
                         onTap: (){
                           Navigator.push(context, MaterialPageRoute(builder: (context){
-                            return LoginScreen();
+                            return RegisterScreen();
                           }));
                         },
                         child: Text(
-                          'Sign In',
+                          'Sign Up',
                           style: GoogleFonts.roboto(
                             color: Color(0xFF102DE1),
                             fontWeight: FontWeight.bold,
