@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/controllers/auth_controller.dart';
-import 'package:mac_store_app/views/authentication_screens/login_screen.dart';
+import 'package:mac_store_app/views/screen/authentication_screens/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
