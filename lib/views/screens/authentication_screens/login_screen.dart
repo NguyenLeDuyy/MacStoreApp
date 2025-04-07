@@ -39,7 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = false;
       });
-      print(res);
+      
+      Future.delayed(Duration.zero, () {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res)));
+      });
     }
   }
 
@@ -218,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

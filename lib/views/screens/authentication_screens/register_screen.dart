@@ -41,7 +41,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         );
         ScaffoldMessenger.of(localContext).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Congratulation account has been created for you'),
           ),
         );
@@ -49,6 +49,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } else {
       setState(() {
         _isLoading = false;
+      });
+
+      Future.delayed(Duration.zero, () {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(res)));
       });
     }
   }
@@ -192,7 +198,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
 
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   Align(
                     alignment: Alignment.topLeft,
@@ -240,7 +246,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
 
-                      suffixIcon: Icon(Icons.visibility),
+                      suffixIcon: const Icon(Icons.visibility),
                     ),
                   ),
 
@@ -257,7 +263,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [Color(0xFF102DE1), Color(0xCC0D6EFF)],
                         ),
                       ),
