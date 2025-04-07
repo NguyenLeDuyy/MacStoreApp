@@ -18,23 +18,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   late String password;
 
+  bool _isLoading = false;
+
   loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
     String res = await _authController.loginUser(email, password);
-    if(res == 'success'){
-      ///Go to the main screen
-      ///
+    if (res == 'success') {
       Future.delayed(Duration.zero, () {
         Navigator.push(context, MaterialPageRoute(builder: (context){
           return MainScreen();
-         }));
+        }));
 
         //we want to show a message to the user to tell them they have logged in
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Logged in')));
 
-       });
-      print('Logged in');
-    }
-    else {
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
       print(res);
     }
   }
@@ -91,11 +95,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   TextFormField(
-                    onChanged: (value){
+                    onChanged: (value) {
                       email = value;
                     },
-                    validator: (value){
-                      if(value!.isEmpty) {
+                    validator: (value) {
+                      if (value!.isEmpty) {
                         return 'Enter your email';
                       } else {
                         return null;
@@ -141,11 +145,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   TextFormField(
-                    onChanged: (value){
+                    onChanged: (value) {
                       password = value;
                     },
-                    validator: (value){
-                      if(value!.isEmpty) {
+                    validator: (value) {
+                      if (value!.isEmpty) {
                         return 'Enter your password';
                       } else {
                         return null;
@@ -178,15 +182,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
 
                   InkWell(
-                    onTap: (){
-                      if (_formKey.currentState!.validate()){
+                    onTap: () {
+                      if (_formKey.currentState!.validate()) {
                         loginUser();
-                      }
-                      else {
-                        print("failed");;
+                      } else {
+                        print("failed");
+                        ;
                       }
                     },
                     child: Container(
@@ -194,19 +198,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           colors: [Color(0xFF102DE1), Color(0xCC0D6EFF)],
                         ),
                       ),
                       child: Center(
-                        child: Text(
-                          'Sign in',
-                          style: GoogleFonts.getFont(
-                            'Lato',
-                            fontSize: 17,
-                            color: Colors.white,
-                          ),
-                        ),
+                        child:
+                            _isLoading
+                                ? CircularProgressIndicator(color: Colors.white)
+                                : Text(
+                                  'Sign in',
+                                  style: GoogleFonts.getFont(
+                                    'Lato',
+                                    fontSize: 17,
+                                    color: Colors.white,
+                                  ),
+                                ),
                       ),
                     ),
                   ),
@@ -224,10 +231,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       InkWell(
-                        onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context){
-                            return RegisterScreen();
-                          }));
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return RegisterScreen();
+                              },
+                            ),
+                          );
                         },
                         child: Text(
                           'Sign Up',

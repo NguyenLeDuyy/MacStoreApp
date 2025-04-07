@@ -12,7 +12,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final AuthController _authController = AuthController();
-
+  bool _isLoading = false;
   late String fullName;
 
   late String email;
@@ -21,6 +21,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   registerUser() async {
     BuildContext localContext = context;
+    setState(() {
+      _isLoading = true;
+    });
 
     String res = await _authController.registerNewUser(
       email,
@@ -42,6 +45,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             content: Text('Congratulation account has been created for you'),
           ),
         );
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
       });
     }
   }
@@ -175,7 +182,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Image.asset(
-                          'assets/icons/password.png',
+                          'assets/icons/email.png',
                           width: 20,
                           height: 20,
                         ),
@@ -241,7 +248,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   InkWell(
                     onTap: () {
-                      if (_formKey.currentState!.validate()){
+                      if (_formKey.currentState!.validate()) {
                         registerUser();
                       }
                     },
@@ -255,14 +262,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       child: Center(
-                        child: Text(
-                          'Sign up',
-                          style: GoogleFonts.getFont(
-                            'Lato',
-                            fontSize: 17,
-                            color: Colors.white,
-                          ),
-                        ),
+                        child:
+                            _isLoading
+                                ? CircularProgressIndicator(color: Colors.white)
+                                : Text(
+                                  'Sign up',
+                                  style: GoogleFonts.getFont(
+                                    'Lato',
+                                    fontSize: 17,
+                                    color: Colors.white,
+                                  ),
+                                ),
                       ),
                     ),
                   ),
