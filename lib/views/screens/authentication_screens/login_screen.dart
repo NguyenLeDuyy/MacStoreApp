@@ -98,6 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   TextFormField(
+                    obscureText: true,
                     onChanged: (value) {
                       email = value;
                     },
