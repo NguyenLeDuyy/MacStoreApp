@@ -19,6 +19,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   late String password;
 
+  bool _isObscure = true;
+
   registerUser() async {
     BuildContext localContext = context;
     setState(() {
@@ -41,7 +43,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         );
         ScaffoldMessenger.of(localContext).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Congratulation account has been created for you'),
           ),
         );
@@ -49,6 +51,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } else {
       setState(() {
         _isLoading = false;
+      });
+
+      Future.delayed(Duration.zero, () {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(res)));
       });
     }
   }
@@ -187,12 +195,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           height: 20,
                         ),
                       ),
-
-                      suffixIcon: Icon(Icons.visibility),
                     ),
                   ),
 
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   Align(
                     alignment: Alignment.topLeft,
@@ -207,6 +213,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
 
                   TextFormField(
+                    obscureText: _isObscure,
                     onChanged: (value) {
                       password = value;
                     },
@@ -240,7 +247,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
 
-                      suffixIcon: Icon(Icons.visibility),
+                      suffixIcon: IconButton(onPressed: () {
+                        setState(() {
+                          _isObscure = !_isObscure;
+                        });
+                      }, icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off,),),
                     ),
                   ),
 
@@ -257,7 +268,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [Color(0xFF102DE1), Color(0xCC0D6EFF)],
                         ),
                       ),

@@ -20,6 +20,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isLoading = false;
 
+  bool _isObscure = true;
+
   loginUser() async {
     setState(() {
       _isLoading = true;
@@ -39,7 +41,10 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = false;
       });
-      print(res);
+      
+      Future.delayed(Duration.zero, () {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res)));
+      });
     }
   }
 
@@ -95,6 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   TextFormField(
+                    obscureText: true,
                     onChanged: (value) {
                       email = value;
                     },
@@ -145,6 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   TextFormField(
+                    obscureText: _isObscure,
                     onChanged: (value) {
                       password = value;
                     },
@@ -178,7 +185,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      suffixIcon: Icon(Icons.visibility),
+                      suffixIcon: IconButton(onPressed: (){
+                        setState(() {
+                          _isObscure = !_isObscure;
+                        });
+                      }, icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off)),
                     ),
                   ),
 
@@ -218,7 +229,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
