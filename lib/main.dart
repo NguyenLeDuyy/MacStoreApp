@@ -1,23 +1,16 @@
 import 'dart:io';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mac_store_app/views/screens/authentication_screens/register_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Platform.isAndroid
-      ? await Firebase.initializeApp(
-        options: const FirebaseOptions(
-          apiKey: 'AIzaSyA3d8JMWzGA4ZJEF_bCG_Vvmn_o0iUa55M',
-          appId: '1:859767083861:android:9d573787b65c31fa4f55dc',
-          messagingSenderId: '859767083861',
-          projectId: 'my-app-72103',
-          storageBucket: 'my-app-72103.firebasestorage.app',
-        ),
-      )
-      : await Firebase.initializeApp();
+  await Supabase.initialize(
+    url: 'https://deldgmhsvcwtqojoffrd.supabase.co',         // Dán Project URL của bạn vào đây
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlbGRnbWhzdmN3dHFvam9mZnJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4ODI4MDQsImV4cCI6MjA1ODQ1ODgwNH0.nxOvJp_mYRx08vDMx-7JCnHX8vHAPnFGDm5BfAX0fuM', // Dán anon public key của bạn vào đây
+  );
   runApp(const MyApp());
 }
 
