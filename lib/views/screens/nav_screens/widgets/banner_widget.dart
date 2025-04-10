@@ -58,12 +58,32 @@ class _BannerWidgetState extends State<BannerWidget> {
                       fit: BoxFit.cover, // Thêm fit để ảnh đẹp hơn
                       );
                     },
-                  )
+                  ),
+                  _buildPageIndicator(snapshot.data!.length)
                 ],
               );
             }
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildPageIndicator(int pageCount) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(pageCount, (index){
+          return Container(
+            width: 8.0, height: 8.0,
+            margin: EdgeInsets.symmetric(horizontal: 4),
+            decoration: const BoxDecoration(
+              color: Colors.blue,
+              shape: BoxShape.circle,
+            ),
+          );
+        }),
       ),
     );
   }
