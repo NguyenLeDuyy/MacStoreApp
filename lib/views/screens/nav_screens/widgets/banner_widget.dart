@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mac_store_app/controllers/banner_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // Thêm import Supabase
 
 class BannerWidget extends StatefulWidget {
@@ -9,103 +10,61 @@ class BannerWidget extends StatefulWidget {
 }
 
 class _BannerWidgetState extends State<BannerWidget> {
+
   final SupabaseClient _supabase =
       Supabase.instance.client; // Khởi tạo Supabase client
 
-  List<String> _bannerImageUrls = []; // Danh sách lưu URL ảnh banner
-
-  @override
-  void initState() {
-    super.initState();
-    // Gọi hàm lấy banner khi widget được khởi tạo
-    getBanners();
-  }
-
-  // Hàm lấy banner từ Supabase
-  Future<void> getBanners() async {
-    try {
-      // Truy vấn bảng 'banners' và chỉ lấy cột 'image_url'
-      // Bạn có thể thêm .order('order_column') nếu có cột thứ tự
-      final response = await _supabase
-          .from('banners') // Tên bảng Supabase của bạn
-          .select('image'); // Tên cột chứa URL ảnh banner
-
-      // response bây giờ là List<Map<String, dynamic>>
-      final List<dynamic> data = response as List<dynamic>;
-
-      // Tạo list tạm để chứa URL
-      final List<String> tempUrls = [];
-      for (var row in data) {
-        // Kiểm tra kiểu dữ liệu và null safety
-        if (row is Map<String, dynamic> && row['image'] != null) {
-          tempUrls.add(row['image'] as String);
-        }
-      }
-
-      // Cập nhật state chỉ một lần sau khi xử lý xong
-      if (mounted) {
-        // Luôn kiểm tra mounted trước khi gọi setState sau await
-        setState(() {
-          _bannerImageUrls = tempUrls;
-        });
-      }
-      print('Banner URLs fetched: $_bannerImageUrls');
-    } catch (e) {
-      print('Lỗi không xác định khi lấy banners: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi lấy danh sách banner: ${e.toString()}')),
-        );
-      }
-    }
-  }
+  final BannerController _bannerController = BannerController();
 
   @override
   Widget build(BuildContext context) {
-    // Phần UI của bạn sẽ sử dụng list _bannerImageUrls để hiển thị banner
-    // Ví dụ dùng PageView:
-    return _bannerImageUrls.isEmpty
-        ? Center(
-          child: CircularProgressIndicator(),
-        ) // Hiển thị loading nếu chưa có dữ liệu
-        : Container(
-          height: 170, // Chiều cao của banner
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF7F7F7),
-            boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 4,
-              blurRadius: 10,
-              offset: Offset(0, 2),
-            )],
-          ),
-          child: PageView.builder(
-            itemCount: _bannerImageUrls.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    _bannerImageUrls[index],
-                    fit: BoxFit.cover,
-                    // Thêm loadingBuilder và errorBuilder để trải nghiệm tốt hơn
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Center(child: CircularProgressIndicator());
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      print('Lỗi tải ảnh banner: $error');
-                      return Container(
-                        color: Colors.grey,
-                        child: Icon(Icons.error),
-                      );
-                    },
-                  ),
+    // Lấy controller đã được đăng ký bằng GetX
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: 170,
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          // ... styles của bạn
+        ),
+        child: StreamBuilder<List<String>>(
+          stream: _bannerController.getBannerUrls(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              // Hiển thị loading khi đang chờ dữ liệu đầu tiên
+              return Center(child: CircularProgressIndicator(color: Colors.blue));
+            } else if (snapshot.hasError) {
+              print('Lỗi StreamBuilder: ${snapshot.error}'); // Thêm log lỗi
+              return Center(child: Icon(Icons.error, color: Colors.red)); // Hiển thị lỗi rõ hơn
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              // Dữ liệu trống hoặc không có dữ liệu sau khi chờ
+              return Center(
+                child: Text(
+                  'No Banners available',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
                 ),
               );
-            },
-          ),
-        );
+            } else {
+              // Có dữ liệu, hiển thị PageView
+              return Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  PageView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      // Thêm kiểm tra lỗi network image nếu cần
+                    return Image.network(
+                      snapshot.data![index],
+                      fit: BoxFit.cover, // Thêm fit để ảnh đẹp hơn
+                      );
+                    },
+                  )
+                ],
+              );
+            }
+          },
+        ),
+      ),
+    );
   }
 }
