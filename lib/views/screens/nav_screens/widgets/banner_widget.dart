@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mac_store_app/controllers/banner_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // Thêm import Supabase
@@ -32,13 +33,13 @@ class _BannerWidgetState extends State<BannerWidget> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               // Hiển thị loading khi đang chờ dữ liệu đầu tiên
-              return Center(child: CircularProgressIndicator(color: Colors.blue));
+              return const Center(child: CircularProgressIndicator(color: Colors.blue));
             } else if (snapshot.hasError) {
               print('Lỗi StreamBuilder: ${snapshot.error}'); // Thêm log lỗi
-              return Center(child: Icon(Icons.error, color: Colors.red)); // Hiển thị lỗi rõ hơn
+              return const Center(child: Icon(Icons.error, color: Colors.red)); // Hiển thị lỗi rõ hơn
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               // Dữ liệu trống hoặc không có dữ liệu sau khi chờ
-              return Center(
+              return const Center(
                 child: Text(
                   'No Banners available',
                   style: TextStyle(fontSize: 18, color: Colors.grey),
@@ -53,9 +54,11 @@ class _BannerWidgetState extends State<BannerWidget> {
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       // Thêm kiểm tra lỗi network image nếu cần
-                    return Image.network(
-                      snapshot.data![index],
-                      fit: BoxFit.cover, // Thêm fit để ảnh đẹp hơn
+                    return CachedNetworkImage(
+                      imageUrl: snapshot.data![index],
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
                       );
                     },
                   ),
