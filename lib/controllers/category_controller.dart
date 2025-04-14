@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:mac_store_app/models/category_models.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-//**
+
 class CategoryController extends GetxController {
   final SupabaseClient _supabase = Supabase.instance.client;
 
@@ -28,31 +28,3 @@ class CategoryController extends GetxController {
     });
   }
 }
-//**
-
-// class CategoryController extends GetxController{
-//   final Supabase _supastore = Supabase.instance;
-//   RxList<CategoryModel> categories = <CategoryModel>[].obs;
-//
-// @override
-//   void onInit() {
-//     // TODO: implement onInit
-//     super.onInit();
-//     _fetchCategories();
-//   }
-//
-//   void _fetchCategories(){
-//     _supastore
-//         .collection('categories')
-//         .snapshots()
-//         .listen((QuerySnapshot querySnapshots){
-//           categories.assignAll(querySnapshots.docs.map((doc) {
-//             final data = doc.data() as Map<String, dynamic>;
-//             return CategoryModel(
-//                 category_name: data['category_name'],
-//                 category_image: data['category_image']);
-//           }).toList(),
-//         );
-//     });
-//   }
-// }
