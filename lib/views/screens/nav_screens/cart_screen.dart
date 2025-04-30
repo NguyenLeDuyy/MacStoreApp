@@ -28,6 +28,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         child: Container(
           width: MediaQuery.of(context).size.width,
           height: 118,
+          clipBehavior: Clip.hardEdge,
           decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/icons/cartb.png'),
