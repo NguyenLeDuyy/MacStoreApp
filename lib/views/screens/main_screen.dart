@@ -6,6 +6,8 @@ import 'package:mac_store_app/views/screens/nav_screens/home_screen.dart';
 import 'package:mac_store_app/views/screens/nav_screens/stores_screen.dart';
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
   State<MainScreen> createState() => _MainScreenState();
 }

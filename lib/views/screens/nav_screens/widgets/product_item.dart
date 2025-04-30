@@ -11,8 +11,6 @@ class ProductItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // --- !!! THAY THẾ CÁC GIÁ TRỊ SAU BẰNG TÊN CỘT THỰC TẾ TRONG SUPABASE CỦA BẠN !!! ---
-    // --- KẾT THÚC PHẦN THAY THẾ ---
 
     // Lấy tên sản phẩm từ productData một cách an toàn
     final String productName =
@@ -174,7 +172,7 @@ class ProductItemWidget extends StatelessWidget {
                       left: 10,
                       top: -10,
                       child: CachedNetworkImage(
-                        imageUrl: productData['productImage'],
+                        imageUrl: productData['productImage'][0],
                         width: 108,
                         height: 107,
                       ),

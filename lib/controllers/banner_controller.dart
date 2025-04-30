@@ -16,7 +16,7 @@ class BannerController extends GetxController {
       // Biến đổi List<Map> từ Supabase thành List<String> chứa URL ảnh
       // Có thêm lọc và kiểm tra kiểu dữ liệu để an toàn hơn
       final List<String> urls = listOfMaps
-          .where((map) => map is Map<String, dynamic> && map['image'] is String)
+          .where((map) => map['image'] is String)
           .map((map) => map['image'] as String)
           .toList();
       print('Supabase Realtime Update - Banner URLs: $urls'); // Thêm log

@@ -6,6 +6,8 @@ import 'package:mac_store_app/views/screens/authentication_screens/register_scre
 import '../main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -200,7 +202,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         loginUser();
                       } else {
                         print("failed");
-                        ;
                       }
                     },
                     child: Container(
