@@ -84,5 +84,13 @@ class CartNotifier extends StateNotifier<Map<int, CartModel>> {
     state = {...state};
   }
 
+  double calculateTotalAmount() {
+    double totalAmount = 0.0;
+    state.forEach((int productId, CartModel cartItem) {
+      totalAmount += cartItem.quantity * cartItem.productPrice;
+    });
+    return totalAmount;
+  }
+
   Map<int, CartModel> get getCartItem => state;
 }

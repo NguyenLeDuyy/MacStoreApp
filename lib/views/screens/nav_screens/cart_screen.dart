@@ -18,6 +18,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   Widget build(BuildContext context) {
     final cartData = ref.watch(cartProvier);
     final _cartProvider = ref.read(cartProvier.notifier);
+    final totalAmount = ref.read(cartProvier.notifier).calculateTotalAmount();
 
     return Scaffold(
       appBar: PreferredSize(
@@ -192,7 +193,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   Padding(
                                     padding: EdgeInsets.all(8),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
@@ -236,7 +238,10 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                                 children: [
                                                   IconButton(
                                                     onPressed: () {
-                                                      _cartProvider.decrementItem(cartItem.productId);
+                                                      _cartProvider
+                                                          .decrementItem(
+                                                            cartItem.productId,
+                                                          );
                                                     },
                                                     icon: Icon(
                                                       CupertinoIcons.minus,
@@ -254,7 +259,10 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 
                                                   IconButton(
                                                     onPressed: () {
-                                                      _cartProvider.incrementItem(cartItem.productId);
+                                                      _cartProvider
+                                                          .incrementItem(
+                                                            cartItem.productId,
+                                                          );
                                                     },
                                                     icon: Icon(
                                                       CupertinoIcons.plus,
@@ -267,11 +275,11 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 
                                             IconButton(
                                               onPressed: () {
-                                                _cartProvider.removeItem(cartItem.productId);
+                                                _cartProvider.removeItem(
+                                                  cartItem.productId,
+                                                );
                                               },
-                                              icon: Icon(
-                                                CupertinoIcons.delete,
-                                              ),
+                                              icon: Icon(CupertinoIcons.delete),
                                             ),
                                           ],
                                         ),
@@ -285,6 +293,81 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         );
                       },
                     ),
+                  ],
+                ),
+              ),
+
+              bottomNavigationBar: Container(
+                width: 416,
+                height: 89,
+                clipBehavior: Clip.hardEdge,
+                decoration: const BoxDecoration(),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        width: 416,
+                        height: 89,
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Color(0xFFC4C4C4),
+                          )
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment(-0.63, -0.26),
+                      child: Text('Subtototal', style: GoogleFonts.roboto(
+                        color: const Color(0xFFA1A1A1),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),),
+                    ),
+
+                    Align(
+                      alignment: const Alignment(-0.19, -0.31),
+                      child: Text(totalAmount.toStringAsFixed(2), style: GoogleFonts.roboto(
+                        color: const Color(0xFFFF6466),
+                        fontSize: 24,
+                        fontWeight: FontWeight.w500,
+                      ),),
+                    ),
+
+                    Align(
+                      alignment: Alignment(0.83, -1),
+                      child: InkWell(
+                        onTap: (){
+
+                        },
+                        child: Container(
+                          width: 166,
+                          height: 71,
+                          clipBehavior: Clip.hardEdge,
+                          decoration: BoxDecoration(
+                            color: totalAmount == 0.0? Colors.grey: Color(0xFF1532E7),
+                          ),
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Checkout',
+                                  style: GoogleFonts.roboto(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Icon(Icons.arrow_forward_ios, color: Colors.white,)
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),
