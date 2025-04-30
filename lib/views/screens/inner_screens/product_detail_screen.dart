@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/provider/cart_provider.dart';
+import 'package:mac_store_app/provider/favorite_provider.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   final dynamic productData;
@@ -16,8 +17,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final _cartProvider = ref.read(cartProvier.notifier);
-
+    final cartProviderData = ref.read(cartProvier.notifier);
+    final favoriteProviderData = ref.read(favoriteProvider.notifier);
+    ref.watch(favoriteProvider);
     final String productName =
         widget.productData['productName'] as String? ?? 'Sản phẩm không tên';
 
@@ -53,12 +55,25 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               ),
             ),
             IconButton(
-                onPressed: (){},
-                icon: const Icon(
-                  Icons.favorite,
+                onPressed: (){
+                  favoriteProviderData.addProductToFavorite(
+                      productName: widget.productData['productName'],
+                      productId: widget.productData['productId'],
+                      imageUrl: widget.productData['productImage'],
+                      productPrice: widget.productData['productPrice'],
+                  );
+                },
+                icon: favoriteProviderData.getFavoriteItem
+                    .containsKey(widget.productData['productId'])
+                    ? const Icon(
+                      Icons.favorite,
+                      color: Colors.red,
+                )
+                : const Icon(
+                  Icons.favorite_border,
                   color: Colors.red,
                 ),
-            )
+            ),
           ],
         ),
       ),
@@ -237,7 +252,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         padding: EdgeInsets.all(8),
         child: InkWell(
           onTap: (){
-            _cartProvider.addProductToCart(
+            cartProviderData.addProductToCart(
                 productName: widget.productData['productName'],
                 productPrice: widget.productData['productPrice'],
                 categoryName: categoryName,
