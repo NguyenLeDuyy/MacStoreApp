@@ -12,9 +12,6 @@ class BannerWidget extends StatefulWidget {
 
 class _BannerWidgetState extends State<BannerWidget> {
 
-  final SupabaseClient _supabase =
-      Supabase.instance.client; // Khởi tạo Supabase client
-
   final BannerController _bannerController = BannerController();
 
   @override
