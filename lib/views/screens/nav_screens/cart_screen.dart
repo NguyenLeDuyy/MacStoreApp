@@ -17,6 +17,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   @override
   Widget build(BuildContext context) {
     final cartData = ref.watch(cartProvier);
+    final _cartProvider = ref.read(cartProvier.notifier);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -234,7 +235,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                               child: Row(
                                                 children: [
                                                   IconButton(
-                                                    onPressed: () {},
+                                                    onPressed: () {
+                                                      _cartProvider.decrementItem(cartItem.productId);
+                                                    },
                                                     icon: Icon(
                                                       CupertinoIcons.minus,
                                                       color: Colors.white,
@@ -250,7 +253,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                                   ),
 
                                                   IconButton(
-                                                    onPressed: () {},
+                                                    onPressed: () {
+                                                      _cartProvider.incrementItem(cartItem.productId);
+                                                    },
                                                     icon: Icon(
                                                       CupertinoIcons.plus,
                                                       color: Colors.white,
@@ -261,7 +266,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                             ),
 
                                             IconButton(
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                _cartProvider.removeItem(cartItem.productId);
+                                              },
                                               icon: Icon(
                                                 CupertinoIcons.delete,
                                               ),

@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mac_store_app/models/cart_models.dart';
 
-final cartProvier = StateNotifierProvider<CartNotifier, Map<int, CartModel>>((ref) {
+final cartProvier = StateNotifierProvider<CartNotifier, Map<int, CartModel>>((
+  ref,
+) {
   return CartNotifier();
 });
 
@@ -10,14 +12,14 @@ class CartNotifier extends StateNotifier<Map<int, CartModel>> {
 
   void addProductToCart({
     required String productName,
-    required int productPrice,     // <-- Mong đợi int
+    required int productPrice, // <-- Mong đợi int
     required String categoryName,
     required List imageUrl,
-    required int quantity,         // <-- Mong đợi int
-    required int instock,          // <-- Mong đợi int
-    required int productId,     // <-- Mong đợi String
-    required String productSize,   // <-- Mong đợi String
-    required int discount,         // <-- Mong đợi int
+    required int quantity, // <-- Mong đợi int
+    required int instock, // <-- Mong đợi int
+    required int productId, // <-- Mong đợi String
+    required String productSize, // <-- Mong đợi String
+    required int discount, // <-- Mong đợi int
     required String description,
   }) {
     if (state.containsKey(productId)) {
@@ -39,12 +41,48 @@ class CartNotifier extends StateNotifier<Map<int, CartModel>> {
     } else {
       state = {
         ...state,
-        productId: CartModel(productName, productPrice, categoryName, imageUrl, quantity, instock, productId, productSize, discount, description)
+        productId: CartModel(
+          productName,
+          productPrice,
+          categoryName,
+          imageUrl,
+          quantity,
+          instock,
+          productId,
+          productSize,
+          discount,
+          description,
+        ),
       };
     }
-
-
   }
-  
+
+  //func to remove item from cart
+  void removeItem(int productId){
+    state.remove(productId);
+    //notify listeners that the state has changed
+    state = {...state};
+  }
+
+  //func to increase item's quantity in cart
+  void incrementItem(int productId){
+    if(state.containsKey(productId)){
+      state[productId]?.quantity++;
+    }
+
+    //notify listeners that the state has changed
+    state = {...state};
+  }
+
+  //func to decrease item's quantity in cart
+  void decrementItem(int productId){
+    if(state.containsKey(productId)){
+      state[productId]?.quantity--;
+    }
+
+    //notify listeners that the state has changed
+    state = {...state};
+  }
+
   Map<int, CartModel> get getCartItem => state;
 }
