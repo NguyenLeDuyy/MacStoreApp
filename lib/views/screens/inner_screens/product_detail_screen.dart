@@ -62,6 +62,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       imageUrl: widget.productData['productImage'],
                       productPrice: widget.productData['productPrice'],
                   );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    margin: const EdgeInsets.all(15),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: Colors.grey,
+                    content: Text(widget.productData['productName']),
+                  ));
                 },
                 icon: favoriteProviderData.getFavoriteItem
                     .containsKey(widget.productData['productId'])
