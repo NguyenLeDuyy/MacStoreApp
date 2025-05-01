@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/provider/cart_provider.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:mac_store_app/views/screens/inner_screens/checkout_screen.dart';
 import 'package:mac_store_app/views/screens/main_screen.dart';
 
 class CartScreen extends ConsumerStatefulWidget {
@@ -231,7 +232,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                           children: [
                                             Container(
                                               height: 40,
-                                              width: 120,
+                                              width: 105,
                                               decoration: BoxDecoration(
                                                 color: Color(0xFF102DE1),
                                               ),
@@ -331,39 +332,47 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 
                     Align(
                       alignment: const Alignment(-0.19, -0.31),
-                      child: Text(totalAmount.toStringAsFixed(2), style: GoogleFonts.roboto(
-                        color: const Color(0xFFFF6466),
-                        fontSize: 24,
-                        fontWeight: FontWeight.w500,
-                      ),),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(totalAmount.toStringAsFixed(2), style: GoogleFonts.roboto(
+                          color: const Color(0xFFFF6466),
+                          fontSize: 24,
+                          fontWeight: FontWeight.w500,
+                        ),),
+                      ),
                     ),
 
                     Align(
-                      alignment: Alignment(0.83, -1),
+                      alignment: Alignment(1, -1),
                       child: InkWell(
                         onTap: (){
-
+                          Navigator.push(context, MaterialPageRoute(builder: (context){
+                            return checkoutScreen();
+                          }));
                         },
                         child: Container(
-                          width: 166,
-                          height: 71,
+                          width: 140,
+                          height: 88,
                           clipBehavior: Clip.hardEdge,
                           decoration: BoxDecoration(
                             color: totalAmount == 0.0? Colors.grey: Color(0xFF1532E7),
                           ),
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Checkout',
-                                  style: GoogleFonts.roboto(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Checkout',
+                                    style: GoogleFonts.roboto(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                                Icon(Icons.arrow_forward_ios, color: Colors.white,)
-                              ],
+                                  Icon(Icons.arrow_forward_ios, color: Colors.white,)
+                                ],
+                              ),
                             ),
                           ),
                         ),

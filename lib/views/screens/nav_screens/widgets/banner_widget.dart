@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mac_store_app/controllers/banner_controller.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // Thêm import Supabase
 
 class BannerWidget extends StatefulWidget {
   const BannerWidget({super.key});
