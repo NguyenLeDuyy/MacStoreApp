@@ -417,6 +417,10 @@ class _checkoutScreenState extends ConsumerState<checkoutScreen> {
                     'email': _email, // Lấy email từ biến state
                     'fullName': _fullName, // Lấy tên từ biến state
                     'buyerId': userId,
+                    'deliveredCount':0,
+                    'delivered':false,
+                    'processing': true,
+
                   });
                 }
 
