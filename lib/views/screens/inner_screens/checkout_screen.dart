@@ -146,7 +146,7 @@ class _checkoutScreenState extends ConsumerState<checkoutScreen> {
                 children: [
                   Text(
                     hasAddress ? 'Địa chỉ giao hàng' : 'Thêm địa chỉ giao hàng', // Thay đổi tiêu đề
-                    style: GoogleFonts.lato(
+                    style: GoogleFonts.roboto(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -417,9 +417,7 @@ class _checkoutScreenState extends ConsumerState<checkoutScreen> {
                     'email': _email, // Lấy email từ biến state
                     'fullName': _fullName, // Lấy tên từ biến state
                     'buyerId': userId,
-                    'deliveredCount':0,
-                    'delivered':false,
-                    'processing': true,
+
 
                   });
                 }

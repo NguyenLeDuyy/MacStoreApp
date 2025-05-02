@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }));
 
         //we want to show a message to the user to tell them they have logged in
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Logged in')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã đăng nhập')));
 
       });
     } else {
@@ -64,9 +64,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Login Your Account",
+                    "Đăng nhập tài khoản của bạn",
                     style: GoogleFonts.getFont(
-                      'Lato',
+                      'Roboto',
                       color: Color(0xFF0d120E),
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.2,
@@ -74,9 +74,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   Text(
-                    'To Explore the world exclusives',
+                    'Để khám phá thế giới mua sắm tuyệt vời của chúng tôi',
                     style: GoogleFonts.getFont(
-                      'Lato',
+                      'Roboto',
                       color: Color(0xFF0d120E),
                       fontSize: 14,
                       letterSpacing: 0.2,
@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Enter your email';
+                        return 'Nhập email của bạn';
                       } else {
                         return null;
                       }
@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       focusedBorder: InputBorder.none,
                       enabledBorder: InputBorder.none,
-                      labelText: "Enter your email",
+                      labelText: "Nhập email của bạn",
                       labelStyle: GoogleFonts.getFont(
                         "Nunito Sans",
                         fontSize: 14,
@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
-                      'Password',
+                      'Mật khẩu',
                       style: GoogleFonts.getFont(
                         'Nunito Sans',
                         fontWeight: FontWeight.w600,
@@ -158,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Enter your password';
+                        return 'Nhập mật khẩu của bạn';
                       } else {
                         return null;
                       }
@@ -171,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       focusedBorder: InputBorder.none,
                       enabledBorder: InputBorder.none,
-                      labelText: "Enter your password",
+                      labelText: "Nhập mật khẩu của bạn",
                       labelStyle: GoogleFonts.getFont(
                         "Nunito Sans",
                         fontSize: 14,
@@ -201,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (_formKey.currentState!.validate()) {
                         loginUser();
                       } else {
-                        print("failed");
+                        print("Thất bại");
                       }
                     },
                     child: Container(
@@ -218,9 +218,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             _isLoading
                                 ? CircularProgressIndicator(color: Colors.white)
                                 : Text(
-                                  'Sign in',
+                                  'Đăng nhập',
                                   style: GoogleFonts.getFont(
-                                    'Lato',
+                                    'Roboto',
                                     fontSize: 17,
                                     color: Colors.white,
                                   ),
@@ -235,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Need an account?',
+                        'Bạn chưa có tài khoản?',
                         style: GoogleFonts.roboto(
                           fontWeight: FontWeight.w500,
                           letterSpacing: 1,
@@ -253,7 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         },
                         child: Text(
-                          'Sign Up',
+                          'Đăng ký',
                           style: GoogleFonts.roboto(
                             color: Color(0xFF102DE1),
                             fontWeight: FontWeight.bold,
