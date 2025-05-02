@@ -69,8 +69,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                 left: 61,
                 top: 51,
                 child: Text(
-                  'My Cart',
-                  style: GoogleFonts.lato(
+                  'Giỏ hàng của tôi',
+                  style: GoogleFonts.roboto(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                     fontSize: 18,
@@ -88,7 +88,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Your shopping cart is empty.\nYou can add product to your cart from the button below.',
+                      'Giỏ hàng của bạn đang trống.\nBạn có thể thêm sản phẩm vào giỏ hàng bằng nút bên dưới.',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.roboto(
                         fontSize: 17,
@@ -107,7 +107,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         );
                       },
                       child: Text(
-                        'Shop Now',
+                        'Mua ngay',
                         style: GoogleFonts.lato(fontSize: 17, letterSpacing: 1),
                       ),
                     ),
@@ -157,7 +157,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             left: 69,
                             top: 14,
                             child: Text(
-                              'You have ${cartData.length} items',
+                              'Bạn có ${cartData.length} mặt hàng',
                               style: GoogleFonts.lato(
                                 fontSize: 16,
                                 color: Colors.black,
@@ -323,7 +323,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     ),
                     Align(
                       alignment: Alignment(-0.63, -0.26),
-                      child: Text('Subtototal', style: GoogleFonts.roboto(
+                      child: Text('Tổng cộng', style: GoogleFonts.roboto(
                         color: const Color(0xFFA1A1A1),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -363,7 +363,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Checkout',
+                                  Text('Thanh toán',
                                     style: GoogleFonts.roboto(
                                       color: Colors.white,
                                       fontSize: 16,

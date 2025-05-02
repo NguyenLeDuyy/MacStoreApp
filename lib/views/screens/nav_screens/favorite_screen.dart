@@ -59,8 +59,8 @@ class FavoriteScreen extends ConsumerWidget {
                   left: 61,
                   top: 51,
                   child: Text(
-                    'My Favorite',
-                    style: GoogleFonts.lato(
+                    'Danh sách yêu thích',
+                    style: GoogleFonts.roboto(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 18,
@@ -77,7 +77,7 @@ class FavoriteScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Your wishList is empty.\nYou can add product to your wishList from the button below.',
+                'Danh sách yêu thích của bạn đang trống.\nBạn có thể thêm sản phẩm vào danh sách yêu thích của mình từ nút bên dưới.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.roboto(
                   fontSize: 17,
@@ -96,8 +96,8 @@ class FavoriteScreen extends ConsumerWidget {
                   );
                 },
                 child: Text(
-                  'Add Now',
-                  style: GoogleFonts.lato(fontSize: 17, letterSpacing: 1),
+                  'Thêm ngay',
+                  style: GoogleFonts.roboto(fontSize: 17, letterSpacing: 1),
                 ),
               ),
             ]

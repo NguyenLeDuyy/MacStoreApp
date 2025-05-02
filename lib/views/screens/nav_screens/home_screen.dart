@@ -18,9 +18,9 @@ class HomeScreen extends StatelessWidget {
                 HeaderWidget(),
                 BannerWidget(),
                 CategoryItem(),
-                ReuseableTextWidget(title: 'Recommended for you', subTitle: 'View all'),
+                ReuseableTextWidget(title: 'Đề xuất cho bạn', subTitle: 'Xem tất cả'),
                 RecommendedProjectWidget(),
-                ReuseableTextWidget(title: 'Popular Product', subTitle: 'View all'),
+                ReuseableTextWidget(title: 'Sản phẩm phổ biến', subTitle: 'Xem tất cả'),
 
               ],
             )

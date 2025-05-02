@@ -44,7 +44,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Product Detail' ,
+              'Chi tiết sản phẩm' ,
               textAlign: TextAlign.center,
               style: GoogleFonts.lato(
                   fontSize: 18,
@@ -195,7 +195,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
              mainAxisAlignment: MainAxisAlignment.spaceBetween,
              children: [
                Text(
-                 'Size:', style:GoogleFonts.lato(
+                 'Kích cỡ:', style:GoogleFonts.roboto(
                     color: Color(
                       0xff343434,
                     ),
@@ -243,7 +243,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
            child: Column(
              crossAxisAlignment: CrossAxisAlignment.start,
              children: [
-               Text('About', style:GoogleFonts.lato(
+               Text('Về sản phẩm:', style:GoogleFonts.roboto(
                  color: Color(0xff363330),
                  fontSize: 16,
                  letterSpacing: 1,
@@ -291,7 +291,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             ),
             child: Center(
               child: Text(
-                'ADD TO CART',
+                'THÊM VÀO GIỎ HÀNG',
                 style: GoogleFonts.lato(
                 color: Colors.white,
                 fontSize: 12,

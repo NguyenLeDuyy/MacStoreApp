@@ -46,7 +46,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
         ScaffoldMessenger.of(localContext).showSnackBar(
           const SnackBar(
-            content: Text('Congratulation account has been created for you'),
+            content: Text('Tài khoản của bạn đã được ạo thành công'),
           ),
         );
       });
@@ -77,9 +77,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Create Your Account",
+                    "Tạo tài khoản",
                     style: GoogleFonts.getFont(
-                      'Lato',
+                      'Roboto',
                       color: Color(0xFF0d120E),
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.2,
@@ -87,9 +87,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   Text(
-                    'To Explore the world exclusives',
+                    'Để khám phá thế giới mua sắm tuyệt vời của chúng tôi',
                     style: GoogleFonts.getFont(
-                      'Lato',
+                      'Roboto',
                       color: Color(0xFF0d120E),
                       fontSize: 14,
                       letterSpacing: 0.2,
@@ -105,7 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
-                      'Full name',
+                      'Tên đầy đủ',
                       style: GoogleFonts.getFont(
                         'Nunito Sans',
                         fontWeight: FontWeight.w600,
@@ -120,7 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return "Enter your name";
+                        return "Nhập tên của bạn";
                       } else {
                         return null;
                       }
@@ -133,7 +133,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       focusedBorder: InputBorder.none,
                       enabledBorder: InputBorder.none,
-                      labelText: "Enter your full name",
+                      labelText: "Nhập tên đầy đủ của bạn",
                       labelStyle: GoogleFonts.getFont(
                         "Nunito Sans",
                         fontSize: 14,
@@ -170,7 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Enter your email';
+                        return 'Nhập email của bạn';
                       } else {
                         return null;
                       }
@@ -183,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       focusedBorder: InputBorder.none,
                       enabledBorder: InputBorder.none,
-                      labelText: "Enter your email",
+                      labelText: "Nhập email của bạn",
                       labelStyle: GoogleFonts.getFont(
                         "Nunito Sans",
                         fontSize: 14,
@@ -205,7 +205,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
-                      'Password',
+                      'Mật khẩu',
                       style: GoogleFonts.getFont(
                         'Nunito Sans',
                         fontWeight: FontWeight.w600,
@@ -221,7 +221,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Enter your password';
+                        return 'Nhập mật khẩu của bạn';
                       } else {
                         return null;
                       }
@@ -234,7 +234,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       focusedBorder: InputBorder.none,
                       enabledBorder: InputBorder.none,
-                      labelText: "Enter your password",
+                      labelText: "Nhập mật khẩu của bạn",
                       labelStyle: GoogleFonts.getFont(
                         "Nunito Sans",
                         fontSize: 14,
@@ -279,9 +279,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             _isLoading
                                 ? CircularProgressIndicator(color: Colors.white)
                                 : Text(
-                                  'Sign up',
+                                  'Đăng ký',
                                   style: GoogleFonts.getFont(
-                                    'Lato',
+                                    'Roboto',
                                     fontSize: 17,
                                     color: Colors.white,
                                   ),
@@ -296,7 +296,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Already have an account?',
+                        'Bạn đã có tài khoản?',
                         style: GoogleFonts.roboto(
                           fontWeight: FontWeight.w500,
                           letterSpacing: 1,
@@ -314,7 +314,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           );
                         },
                         child: Text(
-                          'Sign In',
+                          'Đăng nhập',
                           style: GoogleFonts.roboto(
                             color: Color(0xFF102DE1),
                             fontWeight: FontWeight.bold,

@@ -20,7 +20,7 @@ class  HeaderWidget extends StatelessWidget {
             height:50,
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Enter text',
+                hintText: 'Nhập văn bản',
                 hintStyle: const TextStyle(
                   fontSize: 14,
                   color: Color(0xff7f7f7f),

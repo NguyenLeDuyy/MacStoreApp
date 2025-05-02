@@ -186,8 +186,8 @@ class ProductItemWidget extends StatelessWidget {
               left: 56,
               top: 155,
               child: Text(
-                '500> sold',
-                style: GoogleFonts.lato(color: Color(0xFF7F8E9D), fontSize: 12),
+                '500> đã bán',
+                style: GoogleFonts.roboto(color: Color(0xFF7F8E9D), fontSize: 12),
               ),
             ),
       
