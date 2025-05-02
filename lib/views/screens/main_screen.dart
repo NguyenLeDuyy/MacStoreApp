@@ -41,23 +41,23 @@ class _MainScreenState extends State<MainScreen> {
         BottomNavigationBarItem(
             icon: Image.asset(
                 "assets/icons/home.png",
-                width:25), label: "Home"),
+                width:25), label: "Trang chủ"),
         BottomNavigationBarItem(
             icon: Image.asset(
                 "assets/icons/love.png",
-                width:25), label: "Favorite"),
+                width:25), label: "Yêu thích"),
         BottomNavigationBarItem(
             icon: Image.asset(
                 "assets/icons/mart.png",
-                width:25), label: "Stores"),
+                width:25), label: "Cửa hàng"),
         BottomNavigationBarItem(
             icon: Image.asset(
                 "assets/icons/cart.png",
-                width:25), label: "Cart"),
+                width:25), label: "Giỏ hàng"),
         BottomNavigationBarItem(
             icon: Image.asset(
                 "assets/icons/user.png",
-                width:25), label: "Account")
+                width:25), label: "Tài khoản")
 
 
 
