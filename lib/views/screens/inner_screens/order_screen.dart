@@ -3,20 +3,25 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/views/screens/inner_screens/order_detail_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class OrderScreen extends StatelessWidget {
+class OrderScreen extends StatefulWidget {
    OrderScreen({super.key});
 
+  @override
+  State<OrderScreen> createState() => _OrderScreenState();
+}
+
+class _OrderScreenState extends State<OrderScreen> {
   final SupabaseClient _supabase = Supabase.instance.client;
 
   @override
   Widget build(BuildContext context) {
     // final Stream<QuerySnapshot> _ordersStream = FirebaseFirestore.instance.collection('orders').where('buyerId', isEqualTo: FirebaseAuth.instancee.currentUser!.uid).snapshots();
 
-    final Stream<List<Map<String, dynamic>>> ordersStream = Supabase.instance.client
+    final ordersStream = Supabase.instance.client
         .from('orders')
         .stream(primaryKey: ['id'])
-        .eq('buyerId',  Supabase.instance.client.auth.currentUser!.id);
-
+        .eq('buyerId', Supabase.instance.client.auth.currentUser!.id)
+        .order('created_at');
 
     return Scaffold(
         appBar: PreferredSize(
@@ -164,7 +169,7 @@ class OrderScreen extends StatelessWidget {
                                               ),
                                           ),
 
-                                          
+
                                         ],
                                       ),
                                     ),
@@ -286,6 +291,7 @@ class OrderScreen extends StatelessWidget {
                                                     .from('orders')
                                                     .delete()
                                                     .eq('id', orderData['id']);
+                                                setState(() {});
                                               },
                                               child: Image.asset('assets/icons/delete.png',
                                                 width: 20, height: 20,),
