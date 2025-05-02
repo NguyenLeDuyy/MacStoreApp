@@ -67,7 +67,7 @@ class OrderScreen extends StatelessWidget {
                 top: 51,
                 child: Text(
                   'Đơn hàng của tôi',
-                  style: GoogleFonts.lato(
+                  style: GoogleFonts.roboto(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                     fontSize: 18,
