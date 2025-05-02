@@ -243,7 +243,7 @@ class OrderScreen extends StatelessWidget {
                                   left: 13,
                                   top: 113,
                                   child: Container(
-                                    width: 77,
+                                    width:90,
                                     height: 25,
                                     clipBehavior: Clip.antiAlias,
                                     decoration: BoxDecoration(
@@ -260,10 +260,10 @@ class OrderScreen extends StatelessWidget {
                                             top: 3,
                                             child: Text(
                                               orderData['delivered']==true
-                                                  ?'Delivered':orderData['processing']==
+                                                  ?'Đã giao hàng':orderData['processing']==
                                                   true
-                                                  ?'Processing'
-                                                  :'Cancelled',
+                                                  ?'Đang xử lý'
+                                                  :'Đã hủy',
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 12,

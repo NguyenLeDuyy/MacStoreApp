@@ -146,7 +146,7 @@ class OrderDetailScreen extends StatelessWidget {
                         left: 13,
                         top: 113,
                         child: Container(
-                          width: 77,
+                          width: 90,
                           height: 25,
                           clipBehavior: Clip.antiAlias,
                           decoration: BoxDecoration(
@@ -163,10 +163,10 @@ class OrderDetailScreen extends StatelessWidget {
                                   top: 3,
                                   child: Text(
                                     orderData['delivered']==true
-                                        ?'Delivered':orderData['processing']==
+                                        ?'Đã giao hàng':orderData['processing']==
                                         true
-                                        ?'Processing'
-                                        :'Cancelled',
+                                        ?'Đang xử lý'
+                                        :'Đã hủy',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -195,7 +195,7 @@ class OrderDetailScreen extends StatelessWidget {
           ),
             child: Container(
               width: 336,
-              height: 154,
+              height: 195,
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -223,19 +223,35 @@ class OrderDetailScreen extends StatelessWidget {
                       ),
                       Text(
                         orderData['locality'] + " " +  orderData['state'],
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                         ),
                       ),
                       Text(
                         orderData['state'],
-                        style: TextStyle(
+                        style:const  TextStyle(
                           fontSize: 16,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      Text(
+                        'Đến ${orderData['fullName']}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 2,
                         ),
                       ),
                     ],
                   ),
-                  )
+                  ),
+                  orderData['delivered']==true
+                      ?Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(
+                        onPressed: (){}, child: Text('Đánh giá')),
+                      )
+                      : const SizedBox()
                 ],
               ),
             ),
