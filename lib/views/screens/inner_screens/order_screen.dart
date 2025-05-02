@@ -19,65 +19,55 @@ class OrderScreen extends StatelessWidget {
 
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(
-          MediaQuery.of(context).size.height * 0.20,
-        ),
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: 118,
-          clipBehavior: Clip.hardEdge,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/icons/cartb.png'),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                left: 322,
-                top: 52,
-                child: Stack(
-                  children: [
-                    Image.asset('assets/icons/not.png', width: 26, height: 25),
-
-                    // Positioned(
-                    //   top: 0,
-                    //   right: 0,
-                    //   child: badges.Badge(
-                    //     badgeStyle: badges.BadgeStyle(
-                    //       badgeColor: Colors.yellow.shade900,
-                    //     ),
-                    //     badgeContent: Text(
-                    //       cartData.length.toString(),
-                    //       style: GoogleFonts.lato(
-                    //         color: Colors.white,
-                    //         fontWeight: FontWeight.bold,
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                  ],
-                ),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.20),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: 118,
+            clipBehavior: Clip.hardEdge,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/icons/cartb.png'),
+                fit: BoxFit.cover,
               ),
-
-              Positioned(
-                left: 61,
-                top: 51,
-                child: Text(
-                  'Đơn hàng của tôi',
-                  style: GoogleFonts.roboto(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
+            ),
+            child: Stack(
+              children: [
+                Positioned(
+                  left: 322,
+                  top: 52,
+                  child: Stack(
+                    children: [
+                      Image.asset('assets/icons/not.png', width: 26, height: 25),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                Positioned(
+                  left: 10, // Adjust position as needed
+                  top: 50,
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+                Positioned(
+                  left: 61,
+                  top: 51,
+                  child: Text(
+                    'Đơn hàng của tôi',
+                    style: GoogleFonts.roboto(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: ordersStream,
         builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
@@ -106,7 +96,7 @@ class OrderScreen extends StatelessWidget {
             itemCount: snapshot.data!.length ,
             itemBuilder: (context, index){
               final orderData = snapshot.data![index];
-              print(snapshot.data); // Kiểm tra toàn bộ dữ liệu trả về
+             // print(snapshot.data); // Kiểm tra toàn bộ dữ liệu trả về
               return Padding(
                 padding: const  EdgeInsets.symmetric(
                 horizontal: 25,
