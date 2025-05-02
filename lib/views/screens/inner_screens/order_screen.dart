@@ -11,7 +11,6 @@ class OrderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // final Stream<QuerySnapshot> _ordersStream = FirebaseFirestore.instance.collection('orders').where('buyerId', isEqualTo: FirebaseAuth.instancee.currentUser!.uid).snapshots();
 
-
     final Stream<List<Map<String, dynamic>>> ordersStream = Supabase.instance.client
         .from('orders')
         .stream(primaryKey: ['id'])
@@ -104,14 +103,15 @@ class OrderScreen extends StatelessWidget {
 
           return ListView.builder(
             itemCount: snapshot.data!.length ,
-            itemBuilder: (context,index){
+            itemBuilder: (context, index){
               final orderData = snapshot.data![index];
-              // print(snapshot.data); // Kiểm tra toàn bộ dữ liệu trả về
+              print(snapshot.data); // Kiểm tra toàn bộ dữ liệu trả về
               return Padding(
                 padding: const  EdgeInsets.symmetric(
                 horizontal: 25,
                 vertical: 25,
-              ),child: InkWell(
+              ),
+                child: InkWell(
                 onTap: (){},
                 child: Container(
                   width: 335,
@@ -137,7 +137,7 @@ class OrderScreen extends StatelessWidget {
                                   0xffeff0f2,
                                 ),
                               ),
-                              borderRadius: BorderRadius.circular(9),
+                              borderRadius: BorderRadius.circular(9,),
                             ),
                             child: Stack(
                               clipBehavior: Clip.none,
@@ -149,8 +149,8 @@ class OrderScreen extends StatelessWidget {
                                       width: 78,
                                       height: 78,
                                       clipBehavior: Clip.antiAlias,
-                                      decoration: BoxDecoration(
-                                        color: Color(
+                                      decoration:  BoxDecoration(
+                                        color: const Color(
                                           0xffbcc5ff,
                                         ),
                                         borderRadius: BorderRadius.circular(8,),
@@ -168,135 +168,136 @@ class OrderScreen extends StatelessWidget {
                                                 fit: BoxFit.cover,
                                               ),
                                           ),
-                                           Positioned(
-                                              left: 101,
-                                              top: 14,
-                                              child: SizedBox(
-                                                width: 216,
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    Expanded(child: SizedBox(
-                                                      width: double.infinity,
-                                                      child: Column(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        children: [
-                                                          SizedBox(
-                                                            width: double.infinity,
-                                                            child: Text(
-                                                              orderData['productName'],overflow: TextOverflow.ellipsis,
-                                                              style: GoogleFonts.getFont(
-                                                                'Lato',
-                                                                color: Colors.black,
-                                                                fontWeight: FontWeight.w500,
-                                                                fontSize: 16,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(height: 4,),
 
-                                                          Align(
-                                                            alignment: Alignment.centerLeft,
-                                                            child: Text(orderData['category'],
-
-                                                              style: const TextStyle(
-                                                                color: Color(
-                                                                  0xff7f808c,
-                                                                ),
-                                                                fontSize: 12,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          const  SizedBox(
-                                                            height: 2,
-                                                          ),
-                                                          Text(
-                                                            "\$${orderData['price']}",
-                                                            style: const TextStyle(
-                                                              color: Color(
-                                                                0xff0b0c1e,
-                                                              ),
-                                                              fontSize: 14,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                           ),
-                                          Positioned(
-                                              left: 13,
-                                              top: 113,
-                                              child: Container(
-                                                width: 77,
-                                                height: 25,
-                                                clipBehavior: Clip.antiAlias,
-                                                decoration: BoxDecoration(
-                                                  color: orderData['delivered']== true?Color(0xff3c55ef):orderData['processing']==true?
-                                                      Colors.purple
-                                                      : Colors.red,
-                                                  borderRadius: BorderRadius.circular(4,),
-                                                ),
-                                                child: Stack(
-                                                  clipBehavior: Clip.none,
-                                                  children: [
-                                                    Positioned(
-                                                        left: 9,
-                                                        top: 3,
-                                                        child: Text(
-                                                          orderData['delivered']==true
-                                                              ?'Delivered':orderData['processing']==
-                                                                true
-                                                              ?'Processing'
-                                                              :'Cancelled',
-                                                          style: const TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 12,
-                                                            fontWeight: FontWeight.bold,
-                                                            height: 1.3,
-                                                          ),
-                                                        )
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                          ),
-                                          Positioned(
-                                              left: 298,
-                                              top:115,
-                                              child: Container(
-                                                width: 20,
-                                                height: 20,
-                                                clipBehavior: Clip.antiAlias,
-                                                decoration: const BoxDecoration(),
-                                                child: Stack(
-                                                  clipBehavior: Clip.none,
-                                                  children: [
-                                                    Positioned(
-                                                        top: 0,
-                                                        left: 0,
-                                                        child: InkWell(
-                                                          onTap: () async{
-                                                            await _supabase
-                                                                .from('orders')
-                                                                .delete()
-                                                                .eq('orderId', orderData['orderId']);
-                                                          },
-                                                          child: Image.asset('assets/icons/delete.png',
-                                                          width: 20, height: 20,),
-                                                        ))
-                                                  ],
-                                                ),
-                                              ),
-                                          )
                                           
                                         ],
                                       ),
                                     ),
+                                ),
+                                Positioned(
+                                  left: 101,
+                                  top: 14,
+                                  child: SizedBox(
+                                    width: 216,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(child: SizedBox(
+                                          width: double.infinity,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: Text(
+                                                  orderData['productName'],overflow: TextOverflow.ellipsis,
+                                                  style: GoogleFonts.getFont(
+                                                    'Lato',
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4,),
+
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(orderData['category'],
+
+                                                  style: const TextStyle(
+                                                    color: Color(
+                                                      0xff7f808c,
+                                                    ),
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                              const  SizedBox(
+                                                height: 2,
+                                              ),
+                                              Text(
+                                                "\$${orderData['price']}",
+                                                style: const TextStyle(
+                                                  color: Color(
+                                                    0xff0b0c1e,
+                                                  ),
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 13,
+                                  top: 113,
+                                  child: Container(
+                                    width: 77,
+                                    height: 25,
+                                    clipBehavior: Clip.antiAlias,
+                                    decoration: BoxDecoration(
+                                      color: orderData['delivered']== true?Color(0xff3c55ef):orderData['processing']==true?
+                                      Colors.purple
+                                          : Colors.red,
+                                      borderRadius: BorderRadius.circular(4,),
+                                    ),
+                                    child: Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        Positioned(
+                                            left: 9,
+                                            top: 3,
+                                            child: Text(
+                                              orderData['delivered']==true
+                                                  ?'Delivered':orderData['processing']==
+                                                  true
+                                                  ?'Processing'
+                                                  :'Cancelled',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                height: 1.3,
+                                              ),
+                                            )
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 298,
+                                  top:115,
+                                  child: Container(
+                                    width: 20,
+                                    height: 20,
+                                    clipBehavior: Clip.antiAlias,
+                                    decoration: const BoxDecoration(),
+                                    child: Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        Positioned(
+                                            top: 0,
+                                            left: 0,
+                                            child: InkWell(
+                                              onTap: () async{
+                                                await _supabase
+                                                    .from('orders')
+                                                    .delete()
+                                                    .eq('id', orderData['id']);
+                                              },
+                                              child: Image.asset('assets/icons/delete.png',
+                                                width: 20, height: 20,),
+                                            ))
+                                      ],
+                                    ),
+                                  ),
                                 )
                               ],
                             ),
@@ -312,7 +313,7 @@ class OrderScreen extends StatelessWidget {
           );
 
         },
-      ),
+      )
     );
   }
 }
