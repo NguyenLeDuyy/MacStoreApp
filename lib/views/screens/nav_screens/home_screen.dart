@@ -5,12 +5,14 @@ import 'package:mac_store_app/views/screens/nav_screens/widgets/header_widget.da
 import 'package:mac_store_app/views/screens/nav_screens/widgets/recommended_project_widget.dart';
 import 'package:mac_store_app/views/screens/nav_screens/widgets/reuseable_text_widget.dart';
 
+import '../inner_screens/RecommendedProductsScreen.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return  Scaffold(
         body: SingleChildScrollView(
             child: Column(
               children:
@@ -18,7 +20,17 @@ class HomeScreen extends StatelessWidget {
                 HeaderWidget(),
                 BannerWidget(),
                 CategoryItem(),
-                ReuseableTextWidget(title: 'Đề xuất cho bạn', subTitle: 'Xem tất cả'),
+                ReuseableTextWidget(
+                  title: 'Đề xuất cho bạn',
+                  subTitle: 'Xem tất cả',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AllProductsScreen()),
+                    );
+                  },
+                ),
+
                 RecommendedProjectWidget(),
                 ReuseableTextWidget(title: 'Sản phẩm phổ biến', subTitle: 'Xem tất cả'),
 

@@ -20,23 +20,25 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     final cartProviderData = ref.read(cartProvier.notifier);
     final favoriteProviderData = ref.read(favoriteProvider.notifier);
     ref.watch(favoriteProvider);
-    final String productName =
-        widget.productData['productName'] as String? ?? 'Sản phẩm không tên';
+// Giá trị mặc định
+    String categoryName = 'Không rõ';
 
-    // Lấy tên danh mục từ dữ liệu lồng nhau một cách an toàn
-    final categoryData =
-    widget.productData['categories']; // Lấy Map lồng nhau (hoặc null)
-    String categoryName = 'Không rõ'; // Giá trị mặc định
-
-    if (categoryData is Map<String, dynamic>) {
-      // Nếu categoryData là Map, lấy giá trị của cột tên danh mục
+// TH1: Nếu có key 'categoryName' (kiểu String - từ map đã xử lý)
+    if (widget.productData['categoryName'] is String) {
+      categoryName = widget.productData['categoryName'] as String;
+    }
+// TH2: Nếu có key 'categories' và nó là Map chứa 'category_name'
+    else if (widget.productData['categories'] is Map<String, dynamic>) {
+      final categoryData = widget.productData['categories'] as Map<String, dynamic>;
       categoryName = categoryData['category_name'] as String? ?? 'N/A';
-    } else if (categoryData != null) {
-      // Ghi log nếu categoryData có giá trị nhưng không phải là Map (trường hợp lạ)
+    }
+// TH3: Có key 'categories' nhưng không đúng kiểu
+    else if (widget.productData['categories'] != null) {
       print(
-        'DEBUG (ProductItemWidget): Dữ liệu category không phải Map: $categoryData',
+        'DEBUG (ProductItemWidget): Dữ liệu category không phải Map: ${widget.productData['categories']}',
       );
     }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,

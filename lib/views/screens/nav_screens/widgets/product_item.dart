@@ -1,42 +1,38 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mac_store_app/views/screens/inner_screens/product_detail_screen.dart'; // Sử dụng Google Fonts cho đẹp hơn
+import 'package:mac_store_app/views/screens/inner_screens/product_detail_screen.dart';
+import 'package:mac_store_app/provider/favorite_provider.dart';
 
-class ProductItemWidget extends StatelessWidget {
-  // Nhận dữ liệu sản phẩm dưới dạng Map
+class ProductItemWidget extends ConsumerWidget {
   final Map<String, dynamic> productData;
 
   const ProductItemWidget({super.key, required this.productData});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Lấy danh sách sản phẩm yêu thích từ provider
+    final favoriteItems = ref.watch(favoriteProvider);
+    final productId = productData['productId'];
+    final isFavorite = favoriteItems.containsKey(productId);
 
     // Lấy tên sản phẩm từ productData một cách an toàn
     final String productName =
         productData['productName'] as String? ?? 'Sản phẩm không tên';
 
     // Lấy tên danh mục từ dữ liệu lồng nhau một cách an toàn
-    final categoryData =
-        productData['categories']; // Lấy Map lồng nhau (hoặc null)
-    String categoryName = 'Không rõ'; // Giá trị mặc định
+    final categoryData = productData['categories'];
+    String categoryName = 'Không rõ';
 
     if (categoryData is Map<String, dynamic>) {
-      // Nếu categoryData là Map, lấy giá trị của cột tên danh mục
       categoryName = categoryData['category_name'] as String? ?? 'N/A';
-    } else if (categoryData != null) {
-      // Ghi log nếu categoryData có giá trị nhưng không phải là Map (trường hợp lạ)
-      print(
-        'DEBUG (ProductItemWidget): Dữ liệu category không phải Map: $categoryData',
-      );
     }
-    // Nếu categoryData là null, categoryName sẽ giữ giá trị 'Không rõ'
 
-    // Xây dựng giao diện cho một sản phẩm
     return InkWell(
-      onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context){
-          return ProductDetailScreen(productData: productData ,);
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return ProductDetailScreen(productData: productData);
         }));
       },
       child: Container(
@@ -68,7 +64,7 @@ class ProductItemWidget extends StatelessWidget {
                 ),
               ),
             ),
-      
+
             Positioned(
               left: 7,
               top: 130,
@@ -82,7 +78,7 @@ class ProductItemWidget extends StatelessWidget {
                 ),
               ),
             ),
-      
+
             Positioned(
               left: 7,
               top: 177,
@@ -95,8 +91,7 @@ class ProductItemWidget extends StatelessWidget {
                 ),
               ),
             ),
-      
-            // TODO: Thêm giá tiền hoặc các thông tin khác nếu cần
+
             Positioned(
               left: 7,
               top: 207,
@@ -110,7 +105,7 @@ class ProductItemWidget extends StatelessWidget {
                 ),
               ),
             ),
-      
+
             Positioned(
               left: 51,
               top: 210,
@@ -125,7 +120,7 @@ class ProductItemWidget extends StatelessWidget {
                 ),
               ),
             ),
-      
+
             Positioned(
               left: 9,
               top: 9,
@@ -150,7 +145,7 @@ class ProductItemWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-      
+
                     Positioned(
                       left: 14,
                       top: 4,
@@ -167,7 +162,7 @@ class ProductItemWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-      
+
                     Positioned(
                       left: 10,
                       top: -10,
@@ -181,7 +176,7 @@ class ProductItemWidget extends StatelessWidget {
                 ),
               ),
             ),
-      
+
             Positioned(
               left: 56,
               top: 155,
@@ -190,7 +185,7 @@ class ProductItemWidget extends StatelessWidget {
                 style: GoogleFonts.roboto(color: Color(0xFF7F8E9D), fontSize: 12),
               ),
             ),
-      
+
             Positioned(
               left: 23,
               top: 155,
@@ -199,7 +194,7 @@ class ProductItemWidget extends StatelessWidget {
                 style: GoogleFonts.lato(color: Color(0xFF7F8E9D), fontSize: 12),
               ),
             ),
-      
+
             Positioned(
               left: 104,
               top: 15,
@@ -220,12 +215,31 @@ class ProductItemWidget extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             Positioned(
-                right: 5,
-                top: 5,
-                child: IconButton(onPressed: (){}, icon: const Icon(Icons.favorite_border, color: Colors.white, size: 16,)),),
-            
+              right: 5,
+              top: 5,
+              child: IconButton(
+                onPressed: () {
+                  final favoriteNotifier = ref.read(favoriteProvider.notifier);
+                  if (isFavorite) {
+                    favoriteNotifier.removeItem(productId);
+                  } else {
+                    favoriteNotifier.addProductToFavorite(
+                      productId: productId,
+                      productName: productData['productName'],
+                      imageUrl: productData['productImage'],
+                      productPrice: productData['productPrice'],
+                    );
+                  }
+                },
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: Colors.white,
+                  size:18,
+                ),
+              ),
+            ),
           ],
         ),
       ),
