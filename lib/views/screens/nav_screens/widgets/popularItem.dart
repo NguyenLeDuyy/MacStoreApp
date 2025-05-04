@@ -56,6 +56,7 @@ class PopularItem extends StatelessWidget {
             ),
             Text(
               productData['productName'],
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 14,

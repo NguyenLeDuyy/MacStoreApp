@@ -91,4 +91,5 @@ class _RecommendedProjectWidgetState extends State<RecommendedProjectWidget> {
       },
     );
   }
+
 }
