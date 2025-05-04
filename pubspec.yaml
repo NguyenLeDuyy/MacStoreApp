@@ -39,7 +39,8 @@ dependencies:
 #  file_picker: ^5.2.5  #file_picker: không hỗ trợ trên Window Linux/ MacOS
 #  mime: ^1.0.4
   file_selector: ^1.0.3
-
+  flutter_easyloading: ^3.0.5
+  uuid: ^4.4.2
 
 
 

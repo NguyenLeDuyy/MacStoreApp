@@ -9,7 +9,7 @@ class OrdersScreen extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Center(
+    return const Center(
       child: Text('Orders Screen'),
     );
   }

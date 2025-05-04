@@ -46,9 +46,9 @@ class _CategoryScreenState extends State<CategoryScreen>{
 
   Future<String?> uploadImageToStorage(dynamic imageBytes, String fileName) async {
     try {
-      final String path = 'categories/$fileName';
+      final String path = fileName;
 
-      final response = await Supabase.instance.client.storage
+      final response = await storage
           .from('categories') // Tên bucket
           .uploadBinary(
         path,
@@ -73,6 +73,7 @@ class _CategoryScreenState extends State<CategoryScreen>{
   }
 
 
+
   Future<void> uploadToSupabaseDatabase() async {
     if (_formKey.currentState!.validate()) {
       if (_image != null && fileName != null) {
@@ -91,26 +92,33 @@ class _CategoryScreenState extends State<CategoryScreen>{
 
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Category uploaded successfully!')),
+              const SnackBar(
+                content: Text('Category uploaded successfully!'),
+                backgroundColor: Colors.green,
+              ),
             );
           } catch (e) {
             debugPrint('Insert DB error: $e');
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Category upload failed')),
+              const SnackBar(
+                content: Text('Category upload failed'),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         } else {
           if (!context.mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Image upload failed')),
+            const SnackBar(
+              content: Text('Image upload failed'),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       }
     }
   }
-
-
 
 
   @override

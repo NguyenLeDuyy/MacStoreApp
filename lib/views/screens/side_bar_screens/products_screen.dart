@@ -1,11 +1,12 @@
 
 // import 'package:flutter/cupertino.dart';
 import 'dart:typed_data';
-
+import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter_admin_scaffold/admin_scaffold.dart';
+ import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:uuid/uuid.dart';
 
 
 class ProductsScreen extends StatefulWidget {
@@ -18,27 +19,29 @@ class ProductsScreen extends StatefulWidget {
 }
 
 class _ProductsScreenState extends State<ProductsScreen> {
-  final SupabaseClient _supabase = Supabase.instance.client;
+  final SupabaseClient supabase = Supabase.instance.client;
+  final SupabaseStorageClient storage = Supabase.instance.client.storage;
+
   final TextEditingController _sizeController = TextEditingController();
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
 
+  //final bool _isLoading = false;
+
+
   final List<String> _categoryList = [];
-
-  //upload values in storage
   final List<String> _sizeList = [];
-  String ? selectedCategory;
-  late String productName;
-  late num productPrice;
-  late num discount;
-  late num quantity;
-  late String description;
+  final List<Uint8List> _images = [];
+  final List<String> _imageUrls = [];
 
+  String? selectedCategory;
+  bool isLoading = false;
+  String? productName;
+  double? productPrice;
+  double? discount;
+  int? quantity;
+  String? description;
 
   bool _isEntered = false;
-
-  final List<Uint8List> _images=[];
-
-
 
 
   void chooseImage() async {
@@ -59,29 +62,97 @@ class _ProductsScreenState extends State<ProductsScreen> {
       _images.add(bytes);
     }
 
-    setState(() {
-
-    });
+    setState(() {});
   }
 
+  Future<void> _getCategories() async {
+    final response = await supabase.from('categories').select();
+
+    setState(() {
+      for (var item in response) {
+        _categoryList.add(item['category_name'] ?? 'Unknown');
+      }
+    });
+  }
 
   @override
   void initState() {
     _getCategories();
     super.initState();
-   
+
   }
 
-  Future<void> _getCategories() async {
-    final response = await _supabase.from('categories').select();
+  Future<void> uploadImageToStorage() async {
+    final uuid = Uuid();
+    try {
+      for (var img in _images) {
+        final fileName = '${uuid.v4()}.png';
 
-    setState(() {
-      for (var item in response) {
-        _categoryList.add(item['categoryName'] ?? 'Unknown');
+        final response = await storage.from('product-images').uploadBinary(
+          fileName,
+          img,
+          fileOptions: const FileOptions(upsert: true),
+        );
+
+        if (response != null) {
+          final imageUrl = storage.from('product-images').getPublicUrl(fileName);
+          setState(() {
+            _imageUrls.add(imageUrl);
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Uploaded successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No response received'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
-    });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred when uploading: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      debugPrint('Upload image error: $e');
+    }
   }
 
+  Future<void> uploadData() async {
+    setState(() {
+      isLoading = true;
+    });
+    await uploadImageToStorage();
+    if (_imageUrls.isNotEmpty) {
+      final productId = Uuid().v4();
+      await supabase.from('products').insert({
+        'productId': productId,
+        'productName': productName,
+        'productPrice': productPrice,
+        'productSize': _sizeList,
+        'category': selectedCategory,
+        'description': description,
+        'discount': discount,
+        'quantity': quantity,
+        //'images': _imageUrls,
+      }).whenComplete(() {
+        setState(() {
+          isLoading = false;
+          _formkey.currentState!.reset();
+          _imageUrls.clear();
+          _images.clear();
+        });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -334,7 +405,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               InkWell(
                 onTap: () {
                   if (_formkey.currentState!.validate()){
-                    //upload product to supabase
+                    uploadData();
                     print('Uploaded');
                   }else{
                     //please fill in all fields
@@ -348,7 +419,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     color: Colors.blue,
                     borderRadius: BorderRadius.circular(9),
                   ),
-                  child: Center(
+                  child: isLoading ? CircularProgressIndicator(color: Colors.white,)
+                  : const Center(
                     child: Text('Upload Product',
                       style: TextStyle(
                         fontSize: 18,
@@ -357,6 +429,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       ),
                     ),
                   ),
+
                 ),
               )
             ],
