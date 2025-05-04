@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/views/screens/inner_screens/product_detail_screen.dart';
@@ -24,6 +25,9 @@ class ProductItemWidget extends ConsumerWidget {
     // Lấy tên danh mục từ dữ liệu lồng nhau một cách an toàn
     final categoryData = productData['categories'];
     String categoryName = 'Không rõ';
+
+    final double rating        = (productData['rating'] as num?)?.toDouble() ?? 0.0;
+    final int   totalReviews  = (productData['totalReviews'] as num?)?.toInt()   ?? 0;
 
     if (categoryData is Map<String, dynamic>) {
       categoryName = categoryData['category_name'] as String? ?? 'N/A';
@@ -178,20 +182,31 @@ class ProductItemWidget extends ConsumerWidget {
             ),
 
             Positioned(
-              left: 56,
+              left: 5,
               top: 155,
-              child: Text(
-                '500> đã bán',
-                style: GoogleFonts.roboto(color: Color(0xFF7F8E9D), fontSize: 12),
-              ),
-            ),
-
-            Positioned(
-              left: 23,
-              top: 155,
-              child: Text(
-                "4.5",
-                style: GoogleFonts.lato(color: Color(0xFF7F8E9D), fontSize: 12),
+              child: Row(
+                children: [
+                  // 5 ngôi sao nhỏ phản ánh điểm trung bình
+                  RatingBarIndicator(
+                    rating: rating,
+                    itemBuilder: (_, __) => const Icon(Icons.star, color: Colors.amber, size: 12),
+                    itemCount: 5,
+                    itemSize: 12,
+                    direction: Axis.horizontal,
+                  ),
+                  const SizedBox(width: 4),
+                  // Số điểm
+                  Text(
+                    rating.toStringAsFixed(1),
+                    style: GoogleFonts.lato(color: Color(0xFF7F8E9D), fontSize: 12),
+                  ),
+                  const SizedBox(width: 6),
+                  // Tổng số reviews
+                  Text(
+                    '($totalReviews đánh giá)',
+                    style: GoogleFonts.roboto(color: Color(0xFF7F8E9D), fontSize: 12),
+                  ),
+                ],
               ),
             ),
 

@@ -1,55 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:mac_store_app/views/screens/nav_screens/widgets/popularItem.dart';
+import 'package:mac_store_app/views/screens/nav_screens/widgets/product_item.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AllProductsScreen extends StatelessWidget {
-  const AllProductsScreen({super.key});
+class RecommendedProductsScreen extends StatelessWidget {
+  const RecommendedProductsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final Stream<List<Map<String, dynamic>>> _productStream = Supabase.instance.client
+    final productStream = Supabase.instance.client
         .from('products')
-        .stream(primaryKey: ['id']);
+        .stream(primaryKey: ['productId']);
+
+    // Khoảng cách bạn muốn
+    const double gridPadding = 16;
+    const double gridSpacing = 16;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Đề xuất cho bạn",
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-        ),
+        title: const Text("Đề xuất cho bạn",
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: _productStream,
-        builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+        stream: productStream,
+        builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text('Đã xảy ra lỗi. Vui lòng thử lại.'));
+            return const Center(child: Text("Có lỗi, thử lại sau."));
           }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-
-          if (snapshot.data!.isEmpty) {
+          final products = snapshot.data!;
+          if (products.isEmpty) {
             return const Center(
               child: Text(
-                'Không có sản phẩm nào.\nHãy kiểm tra lại sau!',
+                "Không có sản phẩm nào.",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.7),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             );
           }
 
-          return GridView.count(
-            physics: const ScrollPhysics(),
-            shrinkWrap: true,
-            crossAxisCount: 3,
-            mainAxisSpacing: 15,
-            crossAxisSpacing: 15,
-            childAspectRatio: 300 / 500,
-            children: List.generate(snapshot.data!.length, (index) {
-              final productData = snapshot.data![index];
-              return PopularItem(productData: productData);
-            }),
+          return GridView.builder(
+            padding: const EdgeInsets.all(gridPadding),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,               // 2 cột
+              crossAxisSpacing: gridSpacing,   // spacing ngang giữa các ô
+              mainAxisSpacing: gridSpacing,    // spacing dọc giữa các ô
+              childAspectRatio: 146 / 245,     // tỉ lệ khung con của ProductItemWidget
+            ),
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              return ProductItemWidget(
+                productData: products[index],
+              );
+            },
           );
         },
       ),

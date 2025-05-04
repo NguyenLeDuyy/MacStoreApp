@@ -160,6 +160,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         });
       }
 
+      //cập nhật dữ liệu rating, totalReivews cho table products:
+      await _updateProductAggregateRating(widget.orderData['productId']);
+
+
+
       // Thông báo thành công
       Navigator.of(dialogCtx).pop();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -262,22 +267,45 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
-  void _showAlreadyReviewedDialog() {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Thông báo'),
-            content: const Text('Bạn đã đánh giá sản phẩm này rồi.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-    );
+  /// Cập nhật lại aggregate trên bảng products
+  Future<void> _updateProductAggregateRating(int productId) async {
+    try {
+      // 1) Lấy về tất cả review.rating cho productId
+      final reviews = await supabase
+          .from('reviews')
+          .select('rating')
+          .eq('productId', productId);
+
+      if (reviews is List) {
+        final int count = reviews.length;
+        double avg = 0;
+
+        if (count > 0) {
+          // Tính tổng sao
+          final totalStars = reviews.fold<double>(
+            0,
+                (sum, item) {
+              final r = item['rating'];
+              return sum + ((r is num) ? r.toDouble() : 0);
+            },
+          );
+          avg = totalStars / count;
+        }
+
+        // 2) Update vào products
+        await supabase
+            .from('products')
+            .update({
+          'rating': avg,            // cột rating trung bình
+          'totalReviews': count,    // cột số lượng review
+        })
+            .eq('productId', productId);
+      }
+    } catch (e) {
+      print('Lỗi cập nhật aggregate product: $e');
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
