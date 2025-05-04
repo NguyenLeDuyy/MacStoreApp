@@ -22,7 +22,6 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     ref.watch(favoriteProvider);
 // Giá trị mặc định
     String categoryName = 'Không rõ';
-
 // TH1: Nếu có key 'categoryName' (kiểu String - từ map đã xử lý)
     if (widget.productData['categoryName'] is String) {
       categoryName = widget.productData['categoryName'] as String;
@@ -38,6 +37,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         'DEBUG (ProductItemWidget): Dữ liệu category không phải Map: ${widget.productData['categories']}',
       );
     }
+
+
+
 
     return Scaffold(
       appBar: AppBar(
