@@ -22,6 +22,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   bool _hasUserReviewed = false;
   bool _isLoadingReviewStatus = true;
 
+  int? _existingReviewId;
+  double _existingRating = 0;
+  String _existingComment = '';
+
   @override
   void initState() {
     super.initState();
@@ -41,7 +45,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       final response = await supabase
           .from('reviews')
           .select('id')
-          .eq('productId', productId)  // bây giờ đúng type
+          .eq('productId', productId) // bây giờ đúng type
           .eq('buyerId', user.id)
           .limit(1);
       return response.isNotEmpty;
@@ -51,28 +55,51 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     }
   }
 
-
   Future<void> _checkIfUserHasReviewed() async {
     if (!mounted) return;
     setState(() {
       _isLoadingReviewStatus = true;
     });
 
-    final productId = widget.orderData['productId'];
-    if (productId != null) {
-      final reviewed = await hasUserReviewedProduct(productId);
-      if (!mounted) return;
-      setState(() {
-        _hasUserReviewed = reviewed;
-        _isLoadingReviewStatus = false;
-      });
-    } else {
-      if (!mounted) return;
+    // parse productId về int tương tự như trước
+    final rawId = widget.orderData['productId'];
+    final int productId =
+        rawId is String ? int.parse(rawId) : (rawId is num ? rawId.toInt() : 0);
+
+    final user = supabase.auth.currentUser;
+    if (user == null) {
       setState(() {
         _hasUserReviewed = false;
         _isLoadingReviewStatus = false;
       });
-      print("Lỗi: Không tìm thấy productId trong orderData");
+      return;
+    }
+
+    try {
+      final data =
+          await supabase
+              .from('reviews')
+              .select('id, rating, comment')
+              .eq('productId', productId)
+              .eq('buyerId', user.id)
+              .maybeSingle(); // single() nếu chắc là 1 bản ghi; or maybeSingle() nếu có thể null
+
+      if (data != null) {
+        _existingReviewId = data['id'] as int;
+        _existingRating = (data['rating'] as num).toDouble();
+        _existingComment = data['comment'] as String? ?? '';
+        _hasUserReviewed = true;
+      } else {
+        _hasUserReviewed = false;
+      }
+    } catch (e) {
+      print('Lỗi load review: $e');
+      _hasUserReviewed = false;
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingReviewStatus = false;
+      });
     }
   }
 
@@ -86,11 +113,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     }
   }
 
-  Future<void> _submitReview() async {
+  Future<void> _submitReview(BuildContext dialogCtx) async {
     if (_rating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Vui lòng chọn số sao đánh giá.'),
+          content: Text('Vui lòng chọn sao.'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -103,36 +130,56 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
     final comment = _reviewController.text.trim();
     try {
-      await supabase.from('reviews').insert({
-        'orderId': widget.orderData['orderId'],
-        'productId': widget.orderData['productId'],
-        'buyerId': supabase.auth.currentUser!.id,
-        'fullName': widget.orderData['fullName'],
-        'rating': _rating,
-        'comment': comment,
-        'email': widget.orderData['email'],
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      if (_hasUserReviewed && _existingReviewId != null) {
+        // Update
+        await supabase
+            .from('reviews')
+            .update({
+              'rating': _rating,
+              'comment': comment,
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+            .eq('id', _existingReviewId as Object);
+      } else {
+        // Insert mới
+        final rawId = widget.orderData['productId'];
+        final int productId =
+            rawId is String
+                ? int.parse(rawId)
+                : (rawId is num ? rawId.toInt() : 0);
 
-      // giả lập delay nếu cần
-      await Future.delayed(const Duration(seconds: 1));
+        await supabase.from('reviews').insert({
+          'orderId': widget.orderData['orderId'],
+          'productId': productId,
+          'buyerId': supabase.auth.currentUser!.id,
+          'fullName': widget.orderData['fullName'],
+          'rating': _rating,
+          'comment': comment,
+          'email': widget.orderData['email'],
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      }
 
-      if (!mounted) return;
-      Navigator.of(context).pop();
+      // Thông báo thành công
+      Navigator.of(dialogCtx).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Cảm ơn bạn đã đánh giá!'),
+        SnackBar(
+          content: Text(
+            _hasUserReviewed
+                ? 'Cập nhật đánh giá thành công!'
+                : 'Cảm ơn bạn đã đánh giá!',
+          ),
           backgroundColor: Colors.green,
         ),
       );
-      // cập nhật lại trạng thái
-      _checkIfUserHasReviewed();
-    } catch (error) {
-      if (!mounted) return;
-      Navigator.of(context).pop();
+
+      // Reload lại trạng thái và dữ liệu review
+      await _checkIfUserHasReviewed();
+    } catch (e) {
+      Navigator.of(dialogCtx).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gửi đánh giá thất bại: $error'),
+          content: Text('Lỗi gửi đánh giá: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -145,87 +192,105 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   void _showReviewDialog() {
-    _rating = 0;
-    _reviewController.clear();
+    // Pre-fill
+    _rating = _hasUserReviewed ? _existingRating : 0;
+    _reviewController.text = _hasUserReviewed ? _existingComment : '';
     _isSubmittingReview = false;
 
     showDialog(
       context: context,
       barrierDismissible: !_isSubmittingReview,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Đánh giá sản phẩm'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('Bạn cảm thấy sản phẩm này thế nào?'),
-                const SizedBox(height: 10),
-                RatingBar.builder(
-                  initialRating: _rating,
-                  minRating: 1,
-                  direction: Axis.horizontal,
-                  allowHalfRating: true,
-                  itemCount: 5,
-                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  itemBuilder: (context, _) =>
-                  const Icon(Icons.star, color: Colors.amber),
-                  onRatingUpdate: (ratingValue) {
-                    setDialogState(() => _rating = ratingValue);
-                    setState(() => _rating = ratingValue);
-                  },
-                ),
-                const SizedBox(height: 15),
-                TextFormField(
-                  controller: _reviewController,
-                  decoration: const InputDecoration(
-                    labelText: 'Viết đánh giá của bạn (không bắt buộc)',
-                    hintText: 'Chia sẻ cảm nhận của bạn...',
-                    border: OutlineInputBorder(),
+      builder:
+          (ctx) => StatefulBuilder(
+            builder:
+                (ctx, setDialogState) => AlertDialog(
+                  title: const Text('Đánh giá sản phẩm'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      RatingBar.builder(
+                        initialRating: _rating,
+                        minRating: 1,
+                        allowHalfRating: true,
+                        itemCount: 5,
+                        itemBuilder:
+                            (_, __) =>
+                                const Icon(Icons.star, color: Colors.amber),
+                        onRatingUpdate: (val) {
+                          setDialogState(() => _rating = val);
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      TextFormField(
+                        controller: _reviewController,
+                        decoration: const InputDecoration(
+                          labelText: 'Viết đánh giá (không bắt buộc)',
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 3,
+                      ),
+                    ],
                   ),
-                  maxLines: 3,
-                  textInputAction: TextInputAction.newline,
+                  actions: [
+                    TextButton(
+                      onPressed:
+                          _isSubmittingReview
+                              ? null
+                              : () => Navigator.of(ctx).pop(),
+                      child: const Text('Hủy'),
+                    ),
+                    ElevatedButton(
+                      onPressed:
+                          _isSubmittingReview ? null : () => _submitReview(ctx),
+                      child:
+                          _isSubmittingReview
+                              ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : Text(
+                                _hasUserReviewed ? 'Cập nhật' : 'Gửi đánh giá',
+                              ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
           ),
-          actions: [
-            TextButton(
-              onPressed:
-              _isSubmittingReview ? null : () => Navigator.of(context).pop(),
-              child: const Text('Hủy'),
-            ),
-            ElevatedButton(
-              onPressed: _isSubmittingReview ? null : _submitReview,
-              child: _isSubmittingReview
-                  ? const SizedBox(
-                width: 20,
-                height: 20,
-                child:
-                CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-              )
-                  : const Text('Gửi đánh giá'),
-            ),
-          ],
-        ),
-      ),
+    );
+  }
+
+  void _showAlreadyReviewedDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Thông báo'),
+            content: const Text('Bạn đã đánh giá sản phẩm này rồi.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final statusInfo = _getStatusInfo();
-    final currencyFormat =
-    NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
-    final displayPrice =
-    currencyFormat.format(widget.orderData['price'] ?? 0);
+    final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
+    final displayPrice = currencyFormat.format(widget.orderData['price'] ?? 0);
     final orderedAtString = widget.orderData['ordered_at'] as String?;
-    final orderedDate = orderedAtString != null
-        ? DateTime.parse(orderedAtString)
-        : null;
-    final displayDate = orderedDate != null
-        ? DateFormat('HH:mm dd/MM/yyyy', 'vi_VN').format(orderedDate)
-        : 'N/A';
+    final orderedDate =
+        orderedAtString != null ? DateTime.parse(orderedAtString) : null;
+    final displayDate =
+        orderedDate != null
+            ? DateFormat('HH:mm dd/MM/yyyy', 'vi_VN').format(orderedDate)
+            : 'N/A';
     final displayOrderId = widget.orderData['id'] ?? 'N/A';
 
     return Scaffold(
@@ -247,36 +312,47 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           // Thông tin chung
           Card(
             elevation: 1,
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             margin: const EdgeInsets.only(bottom: 12),
             child: Padding(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Column(
                 children: [
-                  _buildInfoRow(Icons.receipt_long_outlined,
-                      'Mã đơn hàng:', displayOrderId,
-                      isBoldValue: true),
+                  _buildInfoRow(
+                    Icons.receipt_long_outlined,
+                    'Mã đơn hàng:',
+                    displayOrderId,
+                    isBoldValue: true,
+                  ),
                   const Divider(height: 16),
-                  _buildInfoRow(Icons.calendar_today_outlined,
-                      'Ngày đặt:', displayDate),
+                  _buildInfoRow(
+                    Icons.calendar_today_outlined,
+                    'Ngày đặt:',
+                    displayDate,
+                  ),
                   const Divider(height: 16),
                   Row(
                     children: [
-                      Icon(Icons.local_shipping_outlined,
-                          size: 18, color: Colors.grey.shade700),
+                      Icon(
+                        Icons.local_shipping_outlined,
+                        size: 18,
+                        color: Colors.grey.shade700,
+                      ),
                       const SizedBox(width: 12),
-                      const Text('Trạng thái: ',
-                          style: TextStyle(
-                              fontSize: 15, color: Colors.black87)),
+                      const Text(
+                        'Trạng thái: ',
+                        style: TextStyle(fontSize: 15, color: Colors.black87),
+                      ),
                       Chip(
                         label: Text(
                           statusInfo['text'],
                           style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
                         backgroundColor: statusInfo['color'],
                       ),
@@ -290,19 +366,21 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           // Thông tin sản phẩm
           Card(
             elevation: 1,
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             margin: const EdgeInsets.only(bottom: 12),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Thông tin sản phẩm',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Thông tin sản phẩm',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const Divider(height: 20),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,22 +392,28 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           width: 70,
                           height: 70,
                           fit: BoxFit.cover,
-                          loadingBuilder: (context, child, progress) =>
-                          progress == null
-                              ? child
-                              : Container(
-                              width: 70,
-                              height: 70,
-                              color: Colors.grey.shade200,
-                              child: const Center(
-                                  child:
-                                  CupertinoActivityIndicator())),
-                          errorBuilder: (context, _, __) => Container(
-                              width: 70,
-                              height: 70,
-                              color: Colors.grey.shade100,
-                              child: Icon(Icons.broken_image,
-                                  color: Colors.grey.shade400)),
+                          loadingBuilder:
+                              (context, child, progress) =>
+                                  progress == null
+                                      ? child
+                                      : Container(
+                                        width: 70,
+                                        height: 70,
+                                        color: Colors.grey.shade200,
+                                        child: const Center(
+                                          child: CupertinoActivityIndicator(),
+                                        ),
+                                      ),
+                          errorBuilder:
+                              (context, _, __) => Container(
+                                width: 70,
+                                height: 70,
+                                color: Colors.grey.shade100,
+                                child: Icon(
+                                  Icons.broken_image,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -337,28 +421,40 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(widget.orderData['productName'] ?? 'N/A',
-                                style: GoogleFonts.lato(
-                                    fontSize: 15, fontWeight: FontWeight.bold),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis),
-                            const SizedBox(height: 4),
-                            Text(widget.orderData['category'] ?? 'N/A',
-                                style: GoogleFonts.lato(
-                                    fontSize: 13, color: Colors.grey.shade700)),
+                            Text(
+                              widget.orderData['productName'] ?? 'N/A',
+                              style: GoogleFonts.lato(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                             const SizedBox(height: 4),
                             Text(
-                                'Số lượng: ${widget.orderData['quantity'] ?? 1} - Size: ${widget.orderData['size'] ?? 'N/A'}',
-                                style: GoogleFonts.lato(
-                                    fontSize: 13,
-                                    color: Colors.grey.shade700)),
+                              widget.orderData['category'] ?? 'N/A',
+                              style: GoogleFonts.lato(
+                                fontSize: 13,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Số lượng: ${widget.orderData['quantity'] ?? 1} - Size: ${widget.orderData['size'] ?? 'N/A'}',
+                              style: GoogleFonts.lato(
+                                fontSize: 13,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
                             const SizedBox(height: 6),
-                            Text(displayPrice,
-                                style: GoogleFonts.lato(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                    Theme.of(context).colorScheme.primary)),
+                            Text(
+                              displayPrice,
+                              style: GoogleFonts.lato(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -372,28 +468,39 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           // Thông tin giao hàng + nút đánh giá
           Card(
             elevation: 1,
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             margin: const EdgeInsets.only(bottom: 12),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Thông tin giao hàng',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Thông tin giao hàng',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const Divider(height: 20),
-                  _buildInfoRow(Icons.person_outline, 'Người nhận:',
-                      widget.orderData['fullName'] ?? 'N/A'),
+                  _buildInfoRow(
+                    Icons.person_outline,
+                    'Người nhận:',
+                    widget.orderData['fullName'] ?? 'N/A',
+                  ),
                   const Divider(height: 16, indent: 30),
-                  _buildInfoRow(Icons.location_on_outlined, 'Địa chỉ:',
-                      _formatAddress()),
+                  _buildInfoRow(
+                    Icons.location_on_outlined,
+                    'Địa chỉ:',
+                    _formatAddress(),
+                  ),
                   const Divider(height: 16, indent: 30),
-                  _buildInfoRow(Icons.email_outlined, 'Email:',
-                      widget.orderData['email'] ?? 'N/A'),
+                  _buildInfoRow(
+                    Icons.email_outlined,
+                    'Email:',
+                    widget.orderData['email'] ?? 'N/A',
+                  ),
 
                   // Loading trạng thái review
                   if (_isLoadingReviewStatus &&
@@ -404,25 +511,35 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     ),
 
                   // Nút Viết đánh giá
-                  if (widget.orderData['delivered'] == true &&
-                      !_isLoadingReviewStatus &&
-                      !_hasUserReviewed)
+                  // --- Nút Viết đánh giá (luôn hiện nếu delivered) ---
+                  if (widget.orderData['delivered'] == true)
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: Center(
                         child: OutlinedButton.icon(
-                          icon: const Icon(Icons.rate_review_outlined,
-                              size: 18),
-                          label: const Text('Viết đánh giá'),
+                          icon: const Icon(
+                            Icons.rate_review_outlined,
+                            size: 18,
+                          ),
+                          label: Text(
+                            _hasUserReviewed
+                                ? 'Chỉnh sửa đánh giá'
+                                : 'Viết đánh giá',
+                          ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
                             side: BorderSide(
-                                color: Theme.of(context).primaryColor),
-                            foregroundColor:
-                            Theme.of(context).primaryColor,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            foregroundColor: Theme.of(context).primaryColor,
                           ),
-                          onPressed: _showReviewDialog,
+                          onPressed:
+                              _isLoadingReviewStatus
+                                  ? null
+                                  : _showReviewDialog, // luôn mở dialog nhập/sửa
                         ),
                       ),
                     ),
@@ -435,8 +552,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value,
-      {bool isBoldValue = false}) {
+  Widget _buildInfoRow(
+    IconData icon,
+    String label,
+    String value, {
+    bool isBoldValue = false,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -444,20 +565,23 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: Text.rich(
-            TextSpan(children: [
-              TextSpan(
+            TextSpan(
+              children: [
+                TextSpan(
                   text: '$label ',
-                  style: TextStyle(
-                      fontSize: 14, color: Colors.grey.shade800)),
-              TextSpan(
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
+                ),
+                TextSpan(
                   text: value,
                   style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.black87,
-                      fontWeight: isBoldValue
-                          ? FontWeight.bold
-                          : FontWeight.normal)),
-            ]),
+                    fontSize: 15,
+                    color: Colors.black87,
+                    fontWeight:
+                        isBoldValue ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+              ],
+            ),
             style: const TextStyle(height: 1.4),
           ),
         ),
