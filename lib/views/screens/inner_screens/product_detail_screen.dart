@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/provider/cart_provider.dart';
 import 'package:mac_store_app/provider/favorite_provider.dart';
+import 'package:intl/intl.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   final dynamic productData;
@@ -16,10 +18,14 @@ class ProductDetailScreen extends ConsumerStatefulWidget {
 class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
-
     final cartProviderData = ref.read(cartProvier.notifier);
     final favoriteProviderData = ref.read(favoriteProvider.notifier);
     ref.watch(favoriteProvider);
+
+    final data = widget.productData;
+    final double rating = (data['rating'] as num?)?.toDouble() ?? 0.0;
+    final int totalReviews = (data['totalReviews'] as num?)?.toInt() ?? 0;
+    final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
 // Giá trị mặc định
     String categoryName = 'Không rõ';
 // TH1: Nếu có key 'categoryName' (kiểu String - từ map đã xử lý)
@@ -44,263 +50,134 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Chi tiết sản phẩm' ,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.lato(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(
-                    0xFF363330,
-                )
-              ),
-            ),
-            IconButton(
-                onPressed: (){
-                  favoriteProviderData.addProductToFavorite(
-                      productName: widget.productData['productName'],
-                      productId: widget.productData['productId'],
-                      imageUrl: widget.productData['productImage'],
-                      productPrice: widget.productData['productPrice'],
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    margin: const EdgeInsets.all(15),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: Colors.grey,
-                    content: Text(widget.productData['productName']),
-                  ));
-                },
-                icon: favoriteProviderData.getFavoriteItem
-                    .containsKey(widget.productData['productId'])
-                    ? const Icon(
-                      Icons.favorite,
-                      color: Colors.red,
-                )
-                : const Icon(
-                  Icons.favorite_border,
-                  color: Colors.red,
-                ),
-            ),
-          ],
-        ),
-      ),
-     body: Column(
-       crossAxisAlignment: CrossAxisAlignment.start,
-       children: [
-         Center(
-           child: Container(
-             width: 260,
-             height: 274,
-             clipBehavior: Clip.hardEdge,
-             decoration: const BoxDecoration(),
-
-             child:  Stack(
-               clipBehavior: Clip.none,
-               children: [
-                 Positioned(
-                     left:0,
-                     top:0,
-                     child: Container(
-                       width:260,
-                       height: 260,
-                       clipBehavior: Clip.hardEdge,
-                       decoration: BoxDecoration(
-                         color: const Color(
-                            0xffd8ddff,
-                         ),
-
-                         borderRadius: BorderRadius.circular(
-                           130,
-                         ),
-                       ),
-                     ),
-                 ),
-                 Positioned(
-                   left:22,
-                   top: 0,
-                   child: Container(
-                     width:216,
-                     height: 274,
-                     clipBehavior: Clip.hardEdge,
-                     decoration:  BoxDecoration(
-                       color: const Color(
-                         0xFF9CA8FF,
-                       ),
-                       borderRadius: BorderRadius.circular(14,)
-                     ),
-
-                     child: SizedBox(
-                       height: 300,
-                       child: PageView.builder(
-                           scrollDirection: Axis.horizontal,
-                           itemCount: widget.productData['productImage'].length,
-                           itemBuilder: (context, index){
-                             return Image.network(
-                               widget.productData['productImage'][index],
-                               width: 198,
-                               height: 225,
-                               fit: BoxFit.cover,
-                             );
-                           }),
-                     ),
-                   ),
-                 ),
-               ],
-             ),
-           ),
-         ),
-         Padding(
-           padding: const EdgeInsets.all(8.0),
-           child: Row(
-             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-             children: [
-               Text(
-                widget.productData['productName'],
-                 style: GoogleFonts.roboto(
-                   fontSize: 17,
-                   fontWeight: FontWeight.bold,
-                   letterSpacing: 1,
-                   color: const Color(
-                     0xFF3C55EF,
-                   ),
-                 ),
-                ),
-               Text(
-                 "\$${widget.productData['productPrice'].toStringAsFixed(2)}",
-                 style: GoogleFonts.roboto(
-                   fontSize: 17,
-                   fontWeight: FontWeight.bold,
-                   letterSpacing: 1,
-                   color: const Color(
-                     0xFF3C55EF,
-                   ),
-                 ),
-               ),
-
-             ],
-           ),
-         ),
-         Padding(
-           padding: const EdgeInsets.all(8.0),
-           child: Text(
-             categoryName,
-             style: const TextStyle(
-               fontSize: 16,
-               fontWeight: FontWeight.bold,
-             ),
-           ),
-         ),
-         Padding(
-           padding: const EdgeInsets.all(8.0),
-           child: Row(
-             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-             children: [
-               Text(
-                 'Kích cỡ:', style:GoogleFonts.roboto(
-                    color: Color(
-                      0xff343434,
-                    ),
-                    fontSize: 16,
-                    letterSpacing: 1.6,
-                  ),
-               ),
-
-               SizedBox(
-                 height: 50,
-                 child: ListView.builder(
-                   shrinkWrap: true,
-                   scrollDirection: Axis.horizontal,
-                   itemCount: widget.productData['productSize'].length,
-                   itemBuilder: (context, index){
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: InkWell(
-                          onTap: (){},
-                          child: Container(
-                            decoration:  BoxDecoration(
-                              color: const Color(0xff126881),
-
-                              borderRadius: BorderRadius.circular(5,),
-                            ),
-                          child: Padding(padding: EdgeInsets.all(8), child:Text(
-                            widget.productData['productSize'][index],
-                            style: GoogleFonts.lato(
-                              color: Colors.white,
-                            ),
-                          ),),
-
-                          ),
-                        ),
-                      );
-                   },
-                 ),
-               )
-             ],
-           ),
-         ),
-
-         Padding(
-           padding: const EdgeInsets.all(8.0),
-           child: Column(
-             crossAxisAlignment: CrossAxisAlignment.start,
-             children: [
-               Text('Về sản phẩm:', style:GoogleFonts.roboto(
-                 color: Color(0xff363330),
-                 fontSize: 16,
-                 letterSpacing: 1,
-               ),),
-               Text(widget.productData['description'],)
-             ],
-           ),
-         )
-       ],
-     ),
-      bottomSheet: Padding(
-        padding: EdgeInsets.all(8),
-        child: InkWell(
-          onTap: (){
-            cartProviderData.addProductToCart(
-                productName: widget.productData['productName'],
-                productPrice: widget.productData['productPrice'],
-                categoryName: categoryName,
-                imageUrl: widget.productData['productImage'],
-                quantity: 1,
-                instock: widget.productData['quantity'],
-                productId: widget.productData['productId'],
-                productSize: '',
-                discount: widget.productData['discount'],
-                description: widget.productData['description']
-            );
-
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        title: const Text('Chi tiết sản phẩm'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              favoriteProviderData.addProductToFavorite(
+                productName: data['productName'],
+                productId: data['productId'],
+                imageUrl: data['productImage'],
+                productPrice: data['productPrice'],
+              );
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 margin: const EdgeInsets.all(15),
                 behavior: SnackBarBehavior.floating,
                 backgroundColor: Colors.grey,
-                content: Text(widget.productData['productName'])));
-          },
-          child: Container(
-            width: 386,
-            height: 48,
-            clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
-              color: Color(
-                0xff3b54ee,
-              ),
-              borderRadius: BorderRadius.circular(
-                24,
+                content: Text(data['productName']),
+              ));
+            },
+            icon: favoriteProviderData.getFavoriteItem.containsKey(data['productId'])
+                ? const Icon(Icons.favorite, color: Colors.red)
+                : const Icon(Icons.favorite_border, color: Colors.red),
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(12),
+        children: [
+          // Ảnh sản phẩm
+          SizedBox(
+            height: 300,
+            child: PageView.builder(
+              itemCount: data['productImage'].length,
+              itemBuilder: (context, index) => Container(
+                margin: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xffd8ddff),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Image.network(data['productImage'][index], fit: BoxFit.cover),
               ),
             ),
-            child: Center(
-              child: Text(
-                'THÊM VÀO GIỎ HÀNG',
-                style: GoogleFonts.lato(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),),
+          ),
+          const SizedBox(height: 12),
+
+          // Tên + Giá + Rating
+          Text(data['productName'],
+              style: GoogleFonts.roboto(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF3C55EF))),
+          const SizedBox(height: 6),
+
+          // Rating
+          Row(
+            children: [
+              RatingBarIndicator(
+                rating: rating,
+                itemBuilder: (_, __) => const Icon(Icons.star, color: Colors.amber),
+                itemCount: 5,
+                itemSize: 18,
+              ),
+              const SizedBox(width: 8),
+              Text('${rating.toStringAsFixed(1)} (${totalReviews > 99 ? "99+" : totalReviews})',
+                  style: const TextStyle(color: Colors.grey)),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // Giá
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(categoryName, style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(currencyFormat.format(data['productPrice']),
+                  style: GoogleFonts.roboto(
+                      fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF3C55EF))),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Kích cỡ
+          Text('Kích cỡ:', style: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: List<Widget>.generate(
+              data['productSize'].length,
+                  (index) => Chip(label: Text(data['productSize'][index])),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+          // Mô tả
+          Text('Về sản phẩm:', style: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          Text(data['description'] ?? '-', style: const TextStyle(color: Colors.black87)),
+        ],
+      ),
+      bottomSheet: Padding(
+        padding: const EdgeInsets.all(8),
+        child: InkWell(
+          onTap: () {
+            cartProviderData.addProductToCart(
+              productName: data['productName'],
+              productPrice: data['productPrice'],
+              categoryName: categoryName,
+              imageUrl: data['productImage'],
+              quantity: 1,
+              instock: data['quantity'],
+              productId: data['productId'],
+              productSize: '',
+              discount: data['discount'],
+              description: data['description'],
+            );
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              margin: const EdgeInsets.all(15),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.grey,
+              content: Text(data['productName']),
+            ));
+          },
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: const Color(0xff3b54ee),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: const Center(
+              child: Text('THÊM VÀO GIỎ HÀNG',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
             ),
           ),
         ),
