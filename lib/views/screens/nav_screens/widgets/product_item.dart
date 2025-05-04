@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/views/screens/inner_screens/product_detail_screen.dart';
 import 'package:mac_store_app/provider/favorite_provider.dart';
+import 'package:mac_store_app/provider/cart_provider.dart';
 
 class ProductItemWidget extends ConsumerWidget {
   final Map<String, dynamic> productData;
@@ -28,6 +29,16 @@ class ProductItemWidget extends ConsumerWidget {
     if (categoryData is Map<String, dynamic>) {
       categoryName = categoryData['category_name'] as String? ?? 'N/A';
     }
+// Lấy danh sách sản phẩm trong giỏ hàng từ provider
+    final cartItems = ref.watch(cartProvier);
+
+
+// Kiểm tra xem sản phẩm có trong giỏ hàng hay không
+    final isInCart = cartItems.containsKey(productId);
+
+
+
+
 
     return InkWell(
       onTap: () {
@@ -237,6 +248,71 @@ class ProductItemWidget extends ConsumerWidget {
                   isFavorite ? Icons.favorite : Icons.favorite_border,
                   color: Colors.white,
                   size:18,
+                ),
+              ),
+            ),
+            Positioned(
+              left: 104,
+              top: 210,
+              child: Container(
+                width: 40,
+                height: 35,
+                decoration: BoxDecoration(
+                  color: Color(0xFFFA634D),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(14),       // Góc trên bên trái
+                    bottomRight: Radius.circular(4),   // Góc dưới bên phải
+                  ),
+
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x33E30D0D),
+                      spreadRadius: 0,
+                      offset: Offset(0, 7),
+                      blurRadius: 15,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              left: 104,
+              top: 205,
+              child: IconButton(
+                onPressed: () {
+                  final cartNotifier = ref.read(cartProvier.notifier);
+                  final productId = (productData['productId'] as num?)?.toInt() ?? 0;
+
+                  // Nếu đã có trong giỏ thì xóa
+                  if (cartNotifier.getCartItem.containsKey(productId)) {
+                    cartNotifier.removeItem(productId);
+                  } else {
+                    // Lấy category name an toàn
+                    final categoryData = productData['categories'];
+                    String categoryName = 'Không rõ';
+                    if (categoryData is Map<String, dynamic>) {
+                      categoryName = categoryData['category_name'] ?? 'Không rõ';
+                    }
+
+                    cartNotifier.addProductToCart(
+                      productName: productData['productName'] ?? 'Không tên',
+                      productPrice: (productData['productPrice'] as num?)?.toInt() ?? 0,
+                      categoryName: categoryName,
+                      imageUrl: List<String>.from(productData['productImage'] ?? []),
+                      quantity: 1,
+                      instock: (productData['quantity'] as num?)?.toInt() ?? 0,
+                      productId: productId,
+                      productSize: productData['productSize'].toString(),
+                      discount: (productData['discount'] as num?)?.toInt() ?? 0,
+                      description: productData['description'] ?? 'Không có mô tả',
+                    );
+                  }
+                },
+
+                icon: Icon(
+                  isInCart ? Icons.shopping_cart : Icons.shopping_cart_outlined,
+                  color: Colors.white,
+                  size:22,
                 ),
               ),
             ),
