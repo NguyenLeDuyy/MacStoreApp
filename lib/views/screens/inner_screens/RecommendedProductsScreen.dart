@@ -5,6 +5,25 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class RecommendedProductsScreen extends StatelessWidget {
   const RecommendedProductsScreen({Key? key}) : super(key: key);
 
+  // Hàm lấy categoryName từ bảng categories theo categoryId
+  Future<String> getCategoryName(int categoryId) async {
+    try {
+      final response = await Supabase.instance.client
+          .from('categories')
+          .select('category_name')
+          .eq('id', categoryId)
+          .maybeSingle();
+
+      if (response != null && response['category_name'] != null) {
+        return response['category_name'] as String;
+      }
+    } catch (e) {
+      debugPrint('Lỗi khi lấy category name: $e');
+    }
+
+    return 'Không rõ';
+  }
+
   @override
   Widget build(BuildContext context) {
     final productStream = Supabase.instance.client
@@ -39,7 +58,6 @@ class RecommendedProductsScreen extends StatelessWidget {
               ),
             );
           }
-
           return GridView.builder(
             padding: const EdgeInsets.all(gridPadding),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

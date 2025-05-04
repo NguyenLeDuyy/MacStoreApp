@@ -23,10 +23,29 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     ref.watch(favoriteProvider);
 
     final data = widget.productData;
-    final String categoryName = data['categoryName'] ?? data['categories']?['category_name'] ?? 'Không rõ';
     final double rating = (data['rating'] as num?)?.toDouble() ?? 0.0;
     final int totalReviews = (data['totalReviews'] as num?)?.toInt() ?? 0;
     final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
+// Giá trị mặc định
+    String categoryName = 'Không rõ';
+// TH1: Nếu có key 'categoryName' (kiểu String - từ map đã xử lý)
+    if (widget.productData['categoryName'] is String) {
+      categoryName = widget.productData['categoryName'] as String;
+    }
+// TH2: Nếu có key 'categories' và nó là Map chứa 'category_name'
+    else if (widget.productData['categories'] is Map<String, dynamic>) {
+      final categoryData = widget.productData['categories'] as Map<String, dynamic>;
+      categoryName = categoryData['category_name'] as String? ?? 'N/A';
+    }
+// TH3: Có key 'categories' nhưng không đúng kiểu
+    else if (widget.productData['categories'] != null) {
+      print(
+        'DEBUG (ProductItemWidget): Dữ liệu category không phải Map: ${widget.productData['categories']}',
+      );
+    }
+
+
+
 
     return Scaffold(
       appBar: AppBar(
