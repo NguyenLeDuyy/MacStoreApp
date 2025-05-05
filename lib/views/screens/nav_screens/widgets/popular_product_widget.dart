@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:mac_store_app/views/screens/nav_screens/widgets/product_item.dart'; // Đảm bảo đường dẫn này đúng
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class RecommendedProjectWidget extends StatefulWidget {
-  const RecommendedProjectWidget({super.key});
+class PopularProductWidget extends StatefulWidget {
+  const PopularProductWidget({super.key});
 
   @override
-  State<RecommendedProjectWidget> createState() => _RecommendedProjectWidgetState();
+  State<PopularProductWidget> createState() => _RecommendedProjectWidgetState();
 }
 
-class _RecommendedProjectWidgetState extends State<RecommendedProjectWidget> {
+class _RecommendedProjectWidgetState extends State<PopularProductWidget> {
   late final Stream<List<Map<String, dynamic>>> _productsStream;
 
   @override
@@ -17,14 +17,15 @@ class _RecommendedProjectWidgetState extends State<RecommendedProjectWidget> {
     super.initState();
 
     // --- !!! THAY THẾ CÁC GIÁ TRỊ SAU BẰNG TÊN THỰC TẾ TRONG SUPABASE CỦA BẠN !!! ---
-   // const String createdAtColumnInProductsTable = 'created_at'; // Tên cột ngày tạo trong bảng 'products' (Nếu có và dùng để sắp xếp)
+    const String createdAtColumnInProductsTable = 'created_at'; // Tên cột ngày tạo trong bảng 'products' (Nếu có và dùng để sắp xếp)
     // --- KẾT THÚC PHẦN THAY THẾ ---
 
     // Câu truy vấn Supabase để lấy sản phẩm và tên danh mục liên quan
     _productsStream = Supabase.instance.client
-        .from('products')
+        .from('products_with_order_count')
         .select('*, categories(category_name)')
-        .order('rating', ascending: false)
+        .order('totalorders', ascending: false)
+
     // --- THAY ĐỔI Ở ĐÂY ---
         .asStream() // GỌI asStream() MÀ KHÔNG CẦN primaryKey
     // --- KẾT THÚC THAY ĐỔI ---

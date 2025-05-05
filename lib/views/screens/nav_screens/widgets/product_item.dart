@@ -24,15 +24,24 @@ class ProductItemWidget extends ConsumerWidget {
         productData['productName'] as String? ?? 'Sản phẩm không tên';
 
     // Lấy tên danh mục từ dữ liệu lồng nhau một cách an toàn
-    final categoryData = productData['categories'];
     String categoryName = 'Không rõ';
+    final double rating = (productData['rating'] as num?)?.toDouble() ?? 0.0;
+    final int totalReviews = (productData['totalReviews'] as num?)?.toInt() ?? 0;
 
-    final double rating        = (productData['rating'] as num?)?.toDouble() ?? 0.0;
-    final int   totalReviews  = (productData['totalReviews'] as num?)?.toInt()   ?? 0;
-
-    if (categoryData is Map<String, dynamic>) {
+// TH1: Nếu có key 'categoryName' (kiểu String - từ map đã xử lý)
+    if (productData['categoryName'] is String) {
+      categoryName = productData['categoryName'] as String;
+    }
+// TH2: Nếu có key 'categories' và nó là Map chứa 'category_name'
+    else if (productData['categories'] is Map<String, dynamic>) {
+      final categoryData = productData['categories'] as Map<String, dynamic>;
       categoryName = categoryData['category_name'] as String? ?? 'N/A';
     }
+// TH3: Có key 'categories' nhưng không đúng kiểu
+    else if (productData['categories'] != null) {
+      debugPrint('DEBUG: Dữ liệu category không phải Map: ${productData['categories']}');
+    }
+
 // Lấy danh sách sản phẩm trong giỏ hàng từ provider
     final cartItems = ref.watch(cartProvier);
 
@@ -243,7 +252,7 @@ class ProductItemWidget extends ConsumerWidget {
             ),
 
             Positioned(
-              right: 5,
+              left: 94,
               top: 5,
               child: IconButton(
                 onPressed: () {
@@ -260,7 +269,9 @@ class ProductItemWidget extends ConsumerWidget {
                   }
                 },
                 icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  isFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border,
                   color: Colors.white,
                   size:18,
                 ),

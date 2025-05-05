@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mac_store_app/views/screens/nav_screens/widgets/product_item.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class RecommendedProductsScreen extends StatelessWidget {
-  const RecommendedProductsScreen({Key? key}) : super(key: key);
+class PopularProductsScreen extends StatelessWidget {
+  const PopularProductsScreen({Key? key}) : super(key: key);
 
   // Hàm lấy categoryName từ bảng categories theo categoryId
   Future<String> getCategoryName(int categoryId) async {
@@ -27,9 +27,9 @@ class RecommendedProductsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productStream = Supabase.instance.client
-        .from('products')
+        .from('products_with_order_count')
         .stream(primaryKey: ['productId'])
-        .order('rating', ascending: false);
+        .order('totalorders', ascending: false);
 
 
     // Khoảng cách bạn muốn
