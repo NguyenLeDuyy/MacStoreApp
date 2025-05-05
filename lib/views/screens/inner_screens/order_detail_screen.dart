@@ -312,7 +312,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final statusInfo = _getStatusInfo();
     final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
     final displayPrice = currencyFormat.format(widget.orderData['price'] ?? 0);
-    final orderedAtString = widget.orderData['ordered_at'] as String?;
+    final orderedAtString = widget.orderData['created_at'] as String?;
     final orderedDate =
         orderedAtString != null ? DateTime.parse(orderedAtString) : null;
     final displayDate =
