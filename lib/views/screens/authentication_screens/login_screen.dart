@@ -14,6 +14,7 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final AuthControllerForAdmin _authController = AuthControllerForAdmin();
 
+
   late String email;
 
   late String password;
@@ -39,7 +40,7 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
 
         //we want to show a message to the user to tell them they have logged in
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Logged in')));
+            const SnackBar(content: Text('Logged in'),backgroundColor: Colors.green,));
       });
     } else {
       setState(() {
