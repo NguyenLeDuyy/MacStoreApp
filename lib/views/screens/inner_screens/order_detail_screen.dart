@@ -276,32 +276,30 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           .select('rating')
           .eq('productId', productId);
 
-      if (reviews is List) {
-        final int count = reviews.length;
-        double avg = 0;
+      final int count = reviews.length;
+      double avg = 0;
 
-        if (count > 0) {
-          // Tính tổng sao
-          final totalStars = reviews.fold<double>(
-            0,
-                (sum, item) {
-              final r = item['rating'];
-              return sum + ((r is num) ? r.toDouble() : 0);
-            },
-          );
-          avg = totalStars / count;
-        }
-
-        // 2) Update vào products
-        await supabase
-            .from('products')
-            .update({
-          'rating': avg,            // cột rating trung bình
-          'totalReviews': count,    // cột số lượng review
-        })
-            .eq('productId', productId);
+      if (count > 0) {
+        // Tính tổng sao
+        final totalStars = reviews.fold<double>(
+          0,
+              (sum, item) {
+            final r = item['rating'];
+            return sum + ((r is num) ? r.toDouble() : 0);
+          },
+        );
+        avg = totalStars / count;
       }
-    } catch (e) {
+
+      // 2) Update vào products
+      await supabase
+          .from('products')
+          .update({
+        'rating': avg,            // cột rating trung bình
+        'totalReviews': count,    // cột số lượng review
+      })
+          .eq('productId', productId);
+        } catch (e) {
       print('Lỗi cập nhật aggregate product: $e');
     }
   }

@@ -3,7 +3,7 @@ import 'package:mac_store_app/views/screens/nav_screens/widgets/product_item.dar
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PopularProductsScreen extends StatelessWidget {
-  const PopularProductsScreen({Key? key}) : super(key: key);
+  const PopularProductsScreen({super.key});
 
   // Hàm lấy categoryName từ bảng categories theo categoryId
   Future<String> getCategoryName(int categoryId) async {

@@ -18,7 +18,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   @override
   Widget build(BuildContext context) {
     final cartData = ref.watch(cartProvier);
-    final _cartProvider = ref.read(cartProvier.notifier);
+    final cartProvider = ref.read(cartProvier.notifier);
     final totalAmount = ref.read(cartProvier.notifier).calculateTotalAmount();
 
     return Scaffold(
@@ -240,7 +240,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                                 children: [
                                                   IconButton(
                                                     onPressed: () {
-                                                      _cartProvider
+                                                      cartProvider
                                                           .decrementItem(
                                                             cartItem.productId,
                                                           );
@@ -261,7 +261,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 
                                                   IconButton(
                                                     onPressed: () {
-                                                      _cartProvider
+                                                      cartProvider
                                                           .incrementItem(
                                                             cartItem.productId,
                                                           );
@@ -277,7 +277,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 
                                             IconButton(
                                               onPressed: () {
-                                                _cartProvider.removeItem(
+                                                cartProvider.removeItem(
                                                   cartItem.productId,
                                                 );
                                               },

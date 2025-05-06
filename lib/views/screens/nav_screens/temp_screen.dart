@@ -7,6 +7,8 @@ void main() {
 }
 
 class MinimalInputApp extends StatelessWidget {
+  const MinimalInputApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -28,6 +30,8 @@ class MinimalInputApp extends StatelessWidget {
 }
 
 class MinimalInputScreen extends StatefulWidget {
+  const MinimalInputScreen({super.key});
+
   @override
   _MinimalInputScreenState createState() => _MinimalInputScreenState();
 }
