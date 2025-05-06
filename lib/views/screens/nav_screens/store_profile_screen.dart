@@ -26,6 +26,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   // Dữ liệu của cửa hàng
   String _companyName = '';
   String _profileImageUrl = '';
+  double balance = 0;
 
   // Các số liệu thống kê
   int _totalOrders = 0;
@@ -59,7 +60,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
       // 1. Lấy thông tin tài khoản doanh nghiệp từ bảng 'business_accounts'
       final businessRes = await supabase
           .from('business_accounts') // <-- Tên bảng tài khoản doanh nghiệp
-          .select('company_name, profile_picture_url') // Các cột cần lấy
+          .select('company_name, profile_picture_url, balance') // Các cột cần lấy
           .eq('user_id', user.id) // Lọc theo user_id của người dùng hiện tại
           .maybeSingle(); // Lấy một bản ghi hoặc null
 
@@ -69,6 +70,8 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         // Lấy dữ liệu, xử lý null
         _companyName = businessRes['company_name'] ?? 'Tên cửa hàng';
         _profileImageUrl = businessRes['profile_picture_url'] ?? '';
+        balance = businessRes['balance'];
+
 
         // --- SỬA LỖI LẤY COUNT ---
         // 2. Lấy tổng số đơn hàng
@@ -183,7 +186,6 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
 
     // --- Giao diện khi đã có tài khoản doanh nghiệp ---
     // Tính toán số dư (ví dụ, bạn cần thay bằng logic thực tế)
-    final balance = _totalOrders * 10000.0;
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
