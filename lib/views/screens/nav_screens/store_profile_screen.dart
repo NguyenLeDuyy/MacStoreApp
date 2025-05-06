@@ -79,7 +79,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
             .select() // Không cần select cột cụ thể khi chỉ lấy count
             .eq('buyerId', user.id) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
             .count(CountOption.exact); // <-- Lấy count chính xác
-        _totalOrders = orderCountResponse as int; // Gán trực tiếp kết quả count
+        _totalOrders = orderCountResponse.count ?? 0; // Gán trực tiếp kết quả count
 
         // Lấy số đơn hàng đang chờ xử lý (chưa giao)
         final pendingResponse = await supabase
@@ -88,7 +88,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
             .eq('buyerId', user.id) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
             .eq('delivered', false) // Lọc đơn chưa giao
             .count(CountOption.exact);
-        _pendingOrders = pendingResponse as int;
+        _pendingOrders = pendingResponse.count ?? 0;
 
         // 3. Lấy tổng số đánh giá
         // *** QUAN TRỌNG: Thay 'seller_id' bằng tên cột đúng trong bảng 'reviews'
@@ -96,9 +96,9 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         final reviewsResponse = await supabase
             .from('reviews')
             .select()
-            .eq('seller_id', user.id) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
+            .eq('buyerId', user.id) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
             .count(CountOption.exact);
-        _totalReviews = reviewsResponse as int;
+        _totalReviews = reviewsResponse.count ?? 0;
         // --------------------------
 
       } else {
@@ -249,7 +249,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   Widget _buildHeader(BuildContext context, String name, double balance, String imageUrl) {
     final screenHeight = MediaQuery.of(context).size.height;
     return SizedBox( // Dùng SizedBox để giới hạn chiều cao chính xác
-      height: screenHeight * 0.35, // Chiều cao khoảng 35% màn hình
+      height: screenHeight * 0.45, // Chiều cao khoảng 35% màn hình
       child: Stack(
         alignment: Alignment.center, // Căn giữa các phần tử trong Stack
         clipBehavior: Clip.none, // Cho phép ảnh đại diện tràn ra ngoài
@@ -279,7 +279,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
 
           // Nội dung chính (Ảnh, Tên, Số dư)
           Positioned(
-            bottom: 0, // Đặt ở dưới cùng của SizedBox
+            bottom: 100, // Đặt ở dưới cùng của SizedBox
             child: Column(
               children: [
                 // Ảnh đại diện với viền trắng
