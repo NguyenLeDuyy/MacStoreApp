@@ -316,8 +316,18 @@ class ProductItemWidget extends ConsumerWidget {
                     // Lấy category name an toàn
                     final categoryData = productData['categories'];
                     String categoryName = 'Không rõ';
-                    if (categoryData is Map<String, dynamic>) {
-                      categoryName = categoryData['category_name'] ?? 'Không rõ';
+                    // TH1: Nếu có key 'categoryName' (kiểu String - từ map đã xử lý)
+                    if (productData['categoryName'] is String) {
+                      categoryName = productData['categoryName'] as String;
+                    }
+// TH2: Nếu có key 'categories' và nó là Map chứa 'category_name'
+                    else if (productData['categories'] is Map<String, dynamic>) {
+                      final categoryData = productData['categories'] as Map<String, dynamic>;
+                      categoryName = categoryData['category_name'] as String? ?? 'N/A';
+                    }
+// TH3: Có key 'categories' nhưng không đúng kiểu
+                    else if (productData['categories'] != null) {
+                      debugPrint('DEBUG: Dữ liệu category không phải Map: ${productData['categories']}');
                     }
 
                     cartNotifier.addProductToCart(

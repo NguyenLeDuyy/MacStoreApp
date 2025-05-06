@@ -38,7 +38,7 @@ class PopularProductsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Đề xuất cho bạn",
+        title: const Text("Sản phẩm phổ biến",
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
