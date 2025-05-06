@@ -4,10 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mac_store_app/controllers/category_controller.dart';
 import 'package:mac_store_app/views/screens/authentication_screens/login_screen.dart';
-import 'package:mac_store_app/views/screens/main_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {

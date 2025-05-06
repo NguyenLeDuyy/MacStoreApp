@@ -4,7 +4,7 @@ import 'package:mac_store_app/views/screens/inner_screens/order_detail_screen.da
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OrderScreen extends StatefulWidget {
-   OrderScreen({super.key});
+   const OrderScreen({super.key});
 
   @override
   State<OrderScreen> createState() => _OrderScreenState();
