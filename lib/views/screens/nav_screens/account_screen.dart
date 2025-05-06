@@ -83,20 +83,7 @@ class AccountScreen extends StatelessWidget {
                           Text(location, style: const TextStyle(color: Colors.white70)),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ///
-                          /// Thống kê mấy cái này chưa đc
-                          ///
-                          _StatCard(icon: Icons.shopping_cart,
-                              count: 22,
-                              label: "Cart"),
-                          _StatCard(icon: Icons.favorite, count: 192, label: "Favorite"),
-                          _StatCard(icon: Icons.check_circle, count: 162, label: "Completed"),
-                        ],
-                      ),
+
                     ],
                   ),
                 ),
