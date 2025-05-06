@@ -111,13 +111,21 @@ class _OrderScreenState extends State<OrderScreen> {
                 vertical: 25,
               ),
                 child: InkWell(
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context){
-                    return OrderDetailScreen(orderData: orderData,);
-                  }));
-                },
+                  onTap: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OrderDetailScreen(orderData: orderData),
+                      ),
+                    );
 
-                child: Container(
+                    if (result == true) {
+                      setState(() {}); // Cập nhật lại giao diện nếu có thay đổi
+                    }
+                  },
+
+
+                  child: Container(
                   width: 335,
                   height: 153,
                   clipBehavior: Clip.antiAlias,
