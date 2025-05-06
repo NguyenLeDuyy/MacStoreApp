@@ -22,6 +22,8 @@ class _OrderScreenState extends State<OrderScreen> {
         .stream(primaryKey: ['id'])
         .eq('buyerId', Supabase.instance.client.auth.currentUser!.id)
         .order('created_at');
+    setState(() {}
+    );
 
     return Scaffold(
         appBar: PreferredSize(
@@ -101,6 +103,7 @@ class _OrderScreenState extends State<OrderScreen> {
             itemCount: snapshot.data!.length ,
             itemBuilder: (context, index){
               final orderData = snapshot.data![index];
+
              // print(snapshot.data); // Kiểm tra toàn bộ dữ liệu trả về
               return Padding(
                 padding: const  EdgeInsets.symmetric(
@@ -113,6 +116,7 @@ class _OrderScreenState extends State<OrderScreen> {
                     return OrderDetailScreen(orderData: orderData,);
                   }));
                 },
+
                 child: Container(
                   width: 335,
                   height: 153,
