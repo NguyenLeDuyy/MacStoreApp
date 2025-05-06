@@ -3,7 +3,7 @@ import 'package:mac_store_app/views/screens/nav_screens/account_screen.dart';
 import 'package:mac_store_app/views/screens/nav_screens/cart_screen.dart';
 import 'package:mac_store_app/views/screens/nav_screens/favorite_screen.dart';
 import 'package:mac_store_app/views/screens/nav_screens/home_screen.dart';
-import 'package:mac_store_app/views/screens/nav_screens/stores_screen.dart';
+import 'package:mac_store_app/views/screens/nav_screens/business_signup_step1.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,7 +17,8 @@ class _MainScreenState extends State<MainScreen> {
   final  List<Widget> _pages = [
     HomeScreen(),
     FavoriteScreen(),
-    StoresScreen(),
+    SignUpAndCreateBusiness1(),
+    // ,
     CartScreen(),
     AccountScreen(),
   ];
