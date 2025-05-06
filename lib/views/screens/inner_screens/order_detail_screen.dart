@@ -149,7 +149,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 : (rawId is num ? rawId.toInt() : 0);
 
         await supabase.from('reviews').insert({
-          'orderId': widget.orderData['orderId'],
+          'orderId': widget.orderData['id'],
           'productId': productId,
           'buyerId': supabase.auth.currentUser!.id,
           'fullName': widget.orderData['fullName'],
