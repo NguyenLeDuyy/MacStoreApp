@@ -325,7 +325,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(true),
           tooltip: 'Quay lại',
         ),
         title: const Text('Chi tiết đơn hàng'),
@@ -572,7 +572,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       ),
                     ),
 // Nút Hủy đơn hàng (chỉ hiện nếu đơn hàng đang xử lý)
-                  if (widget.orderData['processing'] == true)
+                  if (widget.orderData['processing'] == true && widget.orderData['delivered'] == false)
                     Padding(
                       padding: const EdgeInsets.only(top: 12),
                       child: Center(
