@@ -1,7 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:app_web/views/screens/side_bar_screens/widgets/category_list_widget.dart'; // Đảm bảo đường dẫn này đúng
+import 'package:app_web/views/screens/side_bar_screens/widgets/category_list_widget.dart';
 
 class CategoryScreen extends StatefulWidget {
   static const String id = 'category_screen';
@@ -13,241 +15,222 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  late final SupabaseClient supabase = Supabase.instance.client;
-  // late final SupabaseStorageClient storage = supabase.storage; // Không cần khai báo riêng nếu đã có supabase.storage
+  final _formKey = GlobalKey<FormState>();
+  final supabase = Supabase.instance.client;
 
-  late String categoryName = ''; // Khởi tạo để tránh lỗi late
-  dynamic _image;
-  String? fileName;
-  bool _isUploading = false; // Thêm biến trạng thái loading
+  Uint8List? _imageBytes;
+  String? _fileName;
+  String _categoryName = '';
+  bool _isUploading = false;
+  Key _categoryListKey = UniqueKey();
 
-  Key _categoryListKey = UniqueKey(); // Key để rebuild CategoryListWidget
-
-  Future<void> pickImage() async {
+  /* ───────────────────── PICK IMAGE ───────────────────── */
+  Future<void> _pickImage() async {
     try {
-      final XFile? file = await openFile(
-        acceptedTypeGroups: [
-          XTypeGroup(extensions: ['jpg', 'png', 'jpeg', 'gif'])
-        ],
+      final file = await openFile(
+        acceptedTypeGroups: [XTypeGroup(extensions: ['jpg', 'png', 'jpeg', 'gif'])],
       );
       if (file != null) {
         final bytes = await file.readAsBytes();
         setState(() {
-          _image = bytes;
-          fileName = file.name;
+          _imageBytes = bytes;
+          _fileName   = file.name;
         });
       }
-    } catch (e) {
-      // Không cần setState _image = null ở đây vì nó đã được xử lý trong UI
-      if (!context.mounted) return;
+    } catch (_) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Couldn't select an image. Please try again!")),
+        const SnackBar(content: Text("Couldn't select an image, try again!")),
       );
     }
   }
 
-  Future<String?> uploadImageToStorage(
-      dynamic imageBytes, String fileName) async {
+  /* ───────────────────── UPLOAD IMAGE ───────────────────── */
+  Future<String?> _uploadImage() async {
+    if (_imageBytes == null || _fileName == null) return null;
+
+    // thêm timestamp để tránh ghi đè file trùng tên
+    final ext  = _fileName!.split('.').last;
+    final path = 'category_images/${DateTime.now().millisecondsSinceEpoch}.$ext';
+
     try {
-      final String path = 'category_images/$fileName'; // Thêm thư mục để tổ chức
-
       await supabase.storage.from('categories').uploadBinary(
-        // Tên bucket
         path,
-        imageBytes,
-        fileOptions: const FileOptions(upsert: true), // upsert: true sẽ ghi đè nếu file tồn tại
+        _imageBytes!,
+        fileOptions: const FileOptions(upsert: false),
       );
-
-      // Sau khi upload thành công, lấy public URL
-      final String publicUrl =
-      supabase.storage.from('categories').getPublicUrl(path);
-      return publicUrl;
+      return supabase.storage.from('categories').getPublicUrl(path);
     } catch (e) {
-      debugPrint('Image Upload failed: $e');
+      debugPrint('Image upload failed: $e');
       return null;
     }
   }
 
-  Future<void> _uploadCategory() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-    if (_image == null || fileName == null) {
+  /* ───────────────────── SAVE CATEGORY ───────────────────── */
+  Future<void> _saveCategory() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_imageBytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select an image for the category.'),
-          backgroundColor: Colors.orange,
-        ),
+        const SnackBar(content: Text('Please select an image'), backgroundColor: Colors.orange),
       );
       return;
     }
 
-    setState(() {
-      _isUploading = true;
-    });
+    setState(() => _isUploading = true);
+    final imageUrl = await _uploadImage();
 
-    String? imageUrl = await uploadImageToStorage(_image!, fileName!);
+    if (imageUrl == null) {
+      _showSnack('Image upload failed. Category not saved.', Colors.red);
+      setState(() => _isUploading = false);
+      return;
+    }
 
-    if (imageUrl != null) {
-      try {
-        await supabase.from('categories').insert({
-          'category_name': categoryName,
+    try {
+      await supabase.from('categories').upsert(
+        {
+          'category_name': _categoryName.trim(),
           'category_image': imageUrl,
-          // 'created_at': DateTime.now().toIso8601String(), // Supabase sẽ tự thêm nếu cột có default now()
-        });
+        },
+        onConflict: 'category_name',
+      ).select(); // trả về row mới, ném lỗi nếu thất bại
 
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Category uploaded successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        setState(() { // Reset form và làm mới danh sách
-          _image = null;
-          fileName = null;
-          _formKey.currentState?.reset();
-          categoryName = ''; // Reset categoryName
-          _categoryListKey = UniqueKey();
-        });
-      } catch (e) {
-        debugPrint('Insert DB error: $e');
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to save category to database: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } else {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Image upload failed. Category not saved.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnack('Category saved!', Colors.green);
+
+      // reset form & refresh list
+      setState(() {
+        _imageBytes      = null;
+        _fileName        = null;
+        _categoryName    = '';
+        _isUploading     = false;
+        _categoryListKey = UniqueKey();
+        _formKey.currentState?.reset();
+      });
+    } on PostgrestException catch (e) {
+      _showSnack('Supabase error: ${e.message}', Colors.red);
+      setState(() => _isUploading = false);
+    } catch (e) {
+      _showSnack('Unexpected error: $e', Colors.red);
+      setState(() => _isUploading = false);
     }
-    setState(() {
-      _isUploading = false;
-    });
   }
 
+  void _showSnack(String msg, Color color) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: color),
+    );
+  }
+
+  /* ───────────────────── UI ───────────────────── */
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // Căn các phần tử con về bên trái
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0), // Chỉ cần padding dọc
-                child: Text(
-                  'Categories',
-                  style: TextStyle(
-                    fontSize: 28, // Giảm kích thước một chút cho cân đối
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const Divider(
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 20), // Khoảng cách sau Divider
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const Text('Categories',
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              const Divider(),
+              const SizedBox(height: 16),
+
+              /* ---------- Upload row ---------- */
+              Wrap(
+                spacing: 32,
+                runSpacing: 24,
+                crossAxisAlignment: WrapCrossAlignment.start,
                 children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        height: 140,
-                        width: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade300, // Màu nền nhạt hơn
-                          border: Border.all(
-                            color: Colors.grey.shade500,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(
-                          child: _image != null
-                              ? Image.memory(_image, fit: BoxFit.cover)
-                              : const Icon(Icons.image_outlined, size: 50, color: Colors.grey), // Icon placeholder
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: _isUploading ? null : pickImage, // Disable khi đang upload
-                        child: const Text('Upload Image'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 30),
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          initialValue: categoryName, // Để reset hoạt động
-                          onChanged: (value) {
-                            categoryName = value;
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter category name';
-                            }
-                            return null;
-                          },
-                          decoration: const InputDecoration(
-                            labelText: 'Category Name',
-                            hintText: 'Enter category name',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton.icon(
-                          icon: _isUploading
-                              ? Container( // Spinner nhỏ
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                              : const Icon(Icons.save),
-                          label: Text(_isUploading ? 'Saving...' : 'Save Category'),
-                          onPressed: _isUploading ? null : _uploadCategory,
-                          style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _imagePickerCard(),
+                  _nameAndSaveCard(),
                 ],
               ),
-              const SizedBox(height: 20), // Khoảng cách trước danh sách
-              const Text(
-                'Category List',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-              ),
+
+              const SizedBox(height: 32),
+              const Text('Category List',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
               const Divider(),
-              Expanded( // QUAN TRỌNG: Cho phép danh sách cuộn và chiếm không gian còn lại
+
+              /* ---------- List ---------- */
+              SizedBox(
+                height: 500, // cố định để ScrollView cha không lỗi height
                 child: CategoryListWidget(key: _categoryListKey),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /* ───────── Helpers UI ───────── */
+
+  Widget _imagePickerCard() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          height: 140,
+          width: 150,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            border: Border.all(color: Colors.grey.shade500),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: _imageBytes == null
+              ? const Icon(Icons.image_outlined, size: 50, color: Colors.grey)
+              : ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.memory(_imageBytes!, fit: BoxFit.cover),
+          ),
+        ),
+        const SizedBox(height: 8),
+        ElevatedButton(
+          onPressed: _isUploading ? null : _pickImage,
+          child: const Text('Upload Image'),
+        ),
+      ],
+    );
+  }
+
+  Widget _nameAndSaveCard() {
+    return SizedBox(
+      width: 400,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            initialValue: _categoryName,
+            onChanged: (v) => _categoryName = v,
+            validator: (v) =>
+            v == null || v.trim().isEmpty ? 'Please enter category name' : null,
+            decoration: const InputDecoration(
+              labelText: 'Category Name',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            icon: _isUploading
+                ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+                : const Icon(Icons.save),
+            label: Text(_isUploading ? 'Saving...' : 'Save Category'),
+            onPressed: _isUploading ? null : _saveCategory,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+          ),
+        ],
       ),
     );
   }
