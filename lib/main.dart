@@ -50,17 +50,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: LoginScreenAdmin(),
-      // initialRoute: MainScreen.id, // Bắt đầu từ màn hình chính
-      // routes: {
-      //   MainScreen.id: (context) => const MainScreen(),
-      //   CategoryScreen.id: (context) => const CategoryScreen(),
-      //   VendorsScreen.id: (context) => const VendorsScreen(),
-      //   ProductsScreen.id: (context) => const ProductsScreen(),
-      //   UploadBanner.id: (context) => const UploadBanner(),
-      //   BuyersScreen.id: (context) => const BuyersScreen(),
-      //   OrdersScreen.id: (context) => const OrdersScreen(),
-      //   RegisterScreenAdmin.id: (context) => const RegisterScreenAdmin(),
-      // },
+      initialRoute: MainScreen.id, // Bắt đầu từ màn hình chính
+      routes: {
+        MainScreen.id: (context) => const MainScreen(),
+        CategoryScreen.id: (context) => const CategoryScreen(),
+        VendorsScreen.id: (context) => const VendorsScreen(),
+        ProductsScreen.id: (context) => const ProductsScreen(),
+        UploadBanner.id: (context) => const UploadBanner(),
+        BuyersScreen.id: (context) => const BuyersScreen(),
+        OrdersScreen.id: (context) => const OrdersScreen(),
+        RegisterScreenAdmin.id: (context) => const RegisterScreenAdmin(),
+      },
 
 
 
