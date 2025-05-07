@@ -301,7 +301,7 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return ForgotPasswordAdmin();
+                                return ForgotPasswordScreen();
                               },
                             ),
                           );

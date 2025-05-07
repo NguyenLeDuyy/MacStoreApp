@@ -31,10 +31,10 @@ class AuthControllerForAdmin {
           'fullName': fullname,
           'email': email,
           'profileImage': "", // Giá trị mặc định
-          // 'pinCode': "",
-          // 'locality': '',
-          // 'city': '',
-          // 'state': "",
+          'pinCode': "",
+          'locality': '',
+          'city': '',
+          'state': "",
           // created_at và updated_at thường được DB tự quản lý nếu cấu hình mặc định
         });
 
@@ -61,7 +61,7 @@ class AuthControllerForAdmin {
     return res;
   }
 
-  //LOGIN USER
+  //LOGIN ADMIN
   Future<String> loginAdmin(String email, String password) async {
     String res = 'Đã có lỗi xảy ra'; // Sửa lỗi chính tả
 

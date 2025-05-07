@@ -15,9 +15,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
-    url: 'https://ftrjppfocyxntwpuuhvf.supabase.co',// Dán Project URL của bạn vào đây
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0cmpwcGZvY3l4bnR3cHV1aHZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0MjY3MTUsImV4cCI6MjA2MDAwMjcxNX0.PWK4ImEIJ7PSr5hginwk_gzOdWlAdUAxsVHkEQn_z3Y', // Dán anon public key của bạn vào đây
+    url: 'https://deldgmhsvcwtqojoffrd.supabase.co',         // Dán Project URL của bạn vào đây
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlbGRnbWhzdmN3dHFvam9mZnJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4ODI4MDQsImV4cCI6MjA1ODQ1ODgwNH0.nxOvJp_mYRx08vDMx-7JCnHX8vHAPnFGDm5BfAX0fuM', // Dán anon public key của bạn vào đây
   );
+
   runApp(const MyApp());
 }
 

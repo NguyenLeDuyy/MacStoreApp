@@ -10,9 +10,9 @@ class CategoryListWidget extends StatelessWidget {
     final Stream<List<Map<String, dynamic>>> _categoriesStream =
     Supabase.instance.client.from('categories').stream(primaryKey: ['id']);
 
-    return StreamBuilder<List<Map<String, dynamic>>>(
+    return StreamBuilder<List<dynamic>>(
       stream: _categoriesStream,
-      builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         }
@@ -22,40 +22,48 @@ class CategoryListWidget extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Text("No users found");
+          return Text("No categories found");
         }
 
+        final List<Map<String, dynamic>> categories =
+        snapshot.data!.cast<Map<String, dynamic>>();
+
         return GridView.builder(
-            shrinkWrap: true,
-            itemCount: snapshot.data!.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 6, mainAxisSpacing: 8, crossAxisSpacing: 8 ),
-            itemBuilder: (context, index){
-              final categoryData = snapshot.data![index];              return Column(
-                children: [
-                  Image.network(
-                    categoryData['categoryImage'],
-                    height: 100,
-                    width:100,
-                  ),
-                  
-                  Text(categoryData['categoryName'],)
+          shrinkWrap: true,
+          itemCount: categories.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 6,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+          ),
+          itemBuilder: (context, index) {
+            final categoryData = categories[index];
+            final imageUrl = categoryData['category_image'];
+            final categoryName = categoryData['category_name'];
 
-                ],
-              );
-            }
+            return Column(
+              children: [
+                imageUrl != null
+                    ? Image.network(
+                  imageUrl,
+                  height: 100,
+                  width: 100,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Icon(Icons.error),
+                )
+                    : Container(
+                  height: 100,
+                  width: 100,
+                  color: Colors.grey,
+                  child: Icon(Icons.image),
+                ),
+                Text(categoryName ?? 'No name'),
+              ],
+            );
+          },
         );
-
-
-        // return ListView(
-        //   children: snapshot.data!.map((data) {
-        //     return ListTile(
-        //       title: Text(data['full_name'] ?? 'Unknown'),
-        //       subtitle: Text(data['company'] ?? 'No company'),
-        //     );
-        //   }).toList(),
-        // );
       },
     );
+
   }
 }

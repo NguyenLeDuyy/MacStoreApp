@@ -18,6 +18,7 @@ class MainScreen extends StatefulWidget {
 
   @override
   State<MainScreen> createState() => _MainScreenState();
+
 }
 
 class _MainScreenState extends State<MainScreen> {
@@ -25,27 +26,40 @@ class _MainScreenState extends State<MainScreen> {
   final SupabaseClient supabase = Supabase.instance.client;
   OverlayEntry ? overlayEntry;
 
+
   Future<void> _getUserProfile(BuildContext context) async {
     final userId = supabase.auth.currentUser?.id;
+    //print(userId);
 
     if (userId == null) {
       print('User not logged in');
       return;
     }
 
-    final response = await supabase
-        .from('admin')
-        .select('email, fullName, profileImage')
-        .eq('admin_id', userId)
-        .maybeSingle(); // Tránh lỗi nếu không có dữ liệu
+    try {
+      final response = await supabase
+          .from('admin')
+          .select('email, fullName, profileImage')
+          .eq('admin_id', userId)
+          .maybeSingle(); // Trả về null nếu không có bản ghi
+      //print('Supabase response: $response');
 
 
-    if (response != null && response.isNotEmpty) {
-      _showProfileOverlay(context, response['fullName'] ?? 'Unknown', response['email'] ?? '', response['profileImage'] ?? '');
-    } else {
-      print('Không tìm thấy thông tin người dùng');
+      if (response != null) {
+        final fullName = response['fullName'] ?? 'Unknown';
+        final email = response['email'] ?? '';
+        final profileImage = response['profileImage'] ?? '';
+
+        _showProfileOverlay(context, fullName, email, profileImage);
+      } else {
+        print('Không tìm thấy thông tin người dùng');
+      }
+    } catch (error) {
+      print('Đã xảy ra lỗi khi lấy thông tin người dùng: $error');
+
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +172,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
 
           AdminMenuItem(
-            title: 'Register Admin',
+            title: 'Admin Management',
             route: RegisterScreenAdmin.id,
             icon: Icons.mode_edit,
           ),
@@ -204,14 +218,22 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _showProfileOverlay(BuildContext context, String username, String email, String profileImage) {
-      overlayEntry = OverlayEntry(
+    if (overlayEntry != null) return; // Đang hiển thị, không làm gì
+
+    overlayEntry = OverlayEntry(
       builder: (context) => Stack(
         children: [
           GestureDetector(
-            behavior: HitTestBehavior.opaque, // Đảm bảo nhận diện nhấn ngoài vùng hộp thoại
+            behavior: HitTestBehavior.opaque,
             onTap: () {
-              overlayEntry?.remove(); // Kiểm tra null trước khi xoá
+              overlayEntry?.remove();
+              overlayEntry = null;
             },
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: Colors.transparent,
+            ),
           ),
           Positioned(
             top: 43,
@@ -230,9 +252,11 @@ class _MainScreenState extends State<MainScreen> {
                   children: [
                     CircleAvatar(
                       radius: 40,
-                      backgroundImage: profileImage.isNotEmpty
-                          ? NetworkImage(profileImage)
-                          : AssetImage('assets/default_avatar.png') as ImageProvider,
+                      backgroundColor: Colors.grey[300],
+                      backgroundImage: profileImage.isNotEmpty ? NetworkImage(profileImage) : null,
+                      child: profileImage.isEmpty
+                          ? const Icon(Icons.person, size: 40, color: Colors.white)
+                          : null,
                     ),
                     const SizedBox(height: 12),
                     Text(username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
@@ -242,8 +266,9 @@ class _MainScreenState extends State<MainScreen> {
                     ElevatedButton(
                       onPressed: () {
                         overlayEntry?.remove();
+                        overlayEntry = null;
                       },
-                      child: const Text('Chỉnh sửa hồ sơ'),
+                      child: const Text('Edit profile'),
                     ),
                   ],
                 ),
@@ -258,6 +283,7 @@ class _MainScreenState extends State<MainScreen> {
       Overlay.of(context).insert(overlayEntry!);
     });
   }
+
 
   // Hàm hiển thị màn hình theo route đã chọn
   Widget _buildBody(String route) {

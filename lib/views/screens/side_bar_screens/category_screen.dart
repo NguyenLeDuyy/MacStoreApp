@@ -75,6 +75,7 @@ class _CategoryScreenState extends State<CategoryScreen>{
 
 
   Future<void> uploadToSupabaseDatabase() async {
+
     if (_formKey.currentState!.validate()) {
       if (_image != null && fileName != null) {
         String? imageUrl = await uploadImageToStorage(_image, fileName!);

@@ -36,11 +36,13 @@ dependencies:
   flutter_admin_scaffold: ^1.4.0
   google_fonts: ^6.2.1
   supabase_flutter: ^2.0.0
+  supabase: ^2.0.0
 #  file_picker: ^5.2.5  #file_picker: không hỗ trợ trên Window Linux/ MacOS
 #  mime: ^1.0.4
   file_selector: ^1.0.3
   flutter_easyloading: ^3.0.5
   uuid: ^4.4.2
+  mailer: ^6.0.0
 
 
 
