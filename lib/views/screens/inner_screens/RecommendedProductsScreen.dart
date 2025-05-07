@@ -108,3 +108,4 @@ class RecommendedProductsScreen extends StatelessWidget {
     );
   }
 }
+

@@ -5,7 +5,9 @@ import 'package:cached_network_image/cached_network_image.dart'; // Cần cho �
 import 'package:intl/intl.dart'; // Cần cho format số/tiền
 import 'package:mac_store_app/views/screens/inner_screens/ProductUploadPage.dart';
 import 'package:mac_store_app/views/screens/nav_screens/business_signup_step1.dart'; // Import màn hình đăng ký
-import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../inner_screens/RecommendedProductsScreen.dart'; // Import Supabase
 // Import PostgrestException để bắt lỗi cụ thể (tùy chọn)
 // import 'package:postgrest/postgrest.dart';
 
@@ -107,12 +109,24 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         _totalReviews = reviewsResponse.count ?? 0;
         // --------------------------
         // 4. Lấy tất cả sản phẩm của người bán (seller)
+        // Bước 1: Lấy business account ID từ user ID
+        final businessAccountRes = await supabase
+            .from('business_accounts')
+            .select('id')
+            .eq('user_id', user.id)
+            .single(); // Giả sử mỗi user chỉ có 1 business account
+
+        final businessAccountId = businessAccountRes['id'];
+
+        // Bước 2: Lấy danh sách sản phẩm theo seller_id là businessAccountId
         final productsRes = await supabase
-            .from('products') // Đổi tên bảng nếu bảng bạn dùng khác
+            .from('products')
             .select()
-            .eq('seller_id', user.id); // Thay seller_id bằng cột đúng trong bảng products
+            .eq('seller_id', businessAccountId);
 
         _products = List<Map<String, dynamic>>.from(productsRes);
+print(_products);
+
 
 
       } else {
@@ -258,48 +272,64 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
-              // Phần Danh sách sản phẩm
-              const SizedBox(height: 40),
-              Text("Sản phẩm của bạn", style: GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800])),
-              const SizedBox(height: 15),
-              _products.isEmpty
-                  ? Center(
-                child: Text(
-                  "Chưa có sản phẩm nào.",
-                  style: GoogleFonts.lato(color: Colors.grey),
-                ),
-              )
-                  : ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _products.length,
-                itemBuilder: (context, index) {
-                  final product = _products[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      leading: product['productImage'] != null
-                          ? CachedNetworkImage(
-                        imageUrl: product['productImage'],
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => const CupertinoActivityIndicator(),
-                        errorWidget: (context, url, error) => const Icon(Icons.image_not_supported),
-                      )
-                          : const Icon(Icons.image),
-                      title: Text(product['productName'] ?? 'Tên sản phẩm', style: GoogleFonts.lato(fontWeight: FontWeight.bold)),
-                      subtitle: Text(NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product['productPrice'] ?? 0)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        // TODO: Điều hướng đến chi tiết sản phẩm (nếu muốn)
-                      },
+              const SizedBox(height: 30), // Khoảng cách trước khi hiển thị sản phẩm
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Sản phẩm của cửa hàng", style: GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800])),
+                    const SizedBox(height: 15),
+
+                    _products.isEmpty
+                        ? const Center(child: Text('Chưa có sản phẩm nào.'))
+                        : SizedBox(
+                      height: 500, // Đặt chiều cao cố định để tránh lỗi layout
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: _products.length,
+                        itemBuilder: (context, index) {
+                          final product = _products[index];
+                          return Card(
+                            elevation: 4,
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            child: ListTile(
+                              leading: SizedBox(
+                                width: 80,
+                                height: 80,
+                                child: Image.network(
+                                  product['productImage'][0],
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(Icons.image_not_supported, size: 80);
+                                  },
+                                ),
+                              ),
+                              title: Text(product['productName'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Giá: ${product['productPrice']}', style: const TextStyle(fontSize: 16)),
+                                  Text('Giá sau giảm: ${product['discount']}', style: const TextStyle(fontSize: 17,color: Colors.red)),
+                                  Text('Số lượng: ${product['quantity']}', style: const TextStyle(fontSize: 14)),
+                                  Text('Kích thước: ${product['productSize']}', style: const TextStyle(fontSize: 14)),
+                                  Text(
+                                    product['description'],
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
-// Khoảng cách dưới cùng
+
             ],
           ),
         ),
