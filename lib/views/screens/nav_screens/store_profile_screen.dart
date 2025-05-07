@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart'; // Cần cho ảnh
 import 'package:intl/intl.dart'; // Cần cho format số/tiền
+import 'package:mac_store_app/views/screens/inner_screens/ProductUploadPage.dart';
 import 'package:mac_store_app/views/screens/nav_screens/business_signup_step1.dart'; // Import màn hình đăng ký
 import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
 // Import PostgrestException để bắt lỗi cụ thể (tùy chọn)
@@ -18,6 +19,8 @@ class StoreProfileScreen extends StatefulWidget {
 class _StoreProfileScreenState extends State<StoreProfileScreen> {
   // Khởi tạo Supabase client
   final SupabaseClient supabase = Supabase.instance.client;
+  List<Map<String, dynamic>> _products = []; // Danh sách sản phẩm của người bán
+
 
   // Các biến trạng thái
   bool _isLoading = true; // Trạng thái loading ban đầu
@@ -103,6 +106,14 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
             .count(CountOption.exact);
         _totalReviews = reviewsResponse.count ?? 0;
         // --------------------------
+        // 4. Lấy tất cả sản phẩm của người bán (seller)
+        final productsRes = await supabase
+            .from('products') // Đổi tên bảng nếu bảng bạn dùng khác
+            .select()
+            .eq('seller_id', user.id); // Thay seller_id bằng cột đúng trong bảng products
+
+        _products = List<Map<String, dynamic>>.from(productsRes);
+
 
       } else {
         // Không tìm thấy tài khoản doanh nghiệp
@@ -215,6 +226,14 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                         onPressed: () {
                           // TODO: Implement upload product navigation/logic
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Chức năng tải sản phẩm chưa được triển khai.")));
+
+                          // Chuyển đến trang ProductUploadPage
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductsScreen(),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue[700],
@@ -239,7 +258,48 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 30), // Khoảng cách dưới cùng
+              const SizedBox(height: 30),
+              // Phần Danh sách sản phẩm
+              const SizedBox(height: 40),
+              Text("Sản phẩm của bạn", style: GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800])),
+              const SizedBox(height: 15),
+              _products.isEmpty
+                  ? Center(
+                child: Text(
+                  "Chưa có sản phẩm nào.",
+                  style: GoogleFonts.lato(color: Colors.grey),
+                ),
+              )
+                  : ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _products.length,
+                itemBuilder: (context, index) {
+                  final product = _products[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      leading: product['productImage'] != null
+                          ? CachedNetworkImage(
+                        imageUrl: product['productImage'],
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const CupertinoActivityIndicator(),
+                        errorWidget: (context, url, error) => const Icon(Icons.image_not_supported),
+                      )
+                          : const Icon(Icons.image),
+                      title: Text(product['productName'] ?? 'Tên sản phẩm', style: GoogleFonts.lato(fontWeight: FontWeight.bold)),
+                      subtitle: Text(NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(product['productPrice'] ?? 0)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        // TODO: Điều hướng đến chi tiết sản phẩm (nếu muốn)
+                      },
+                    ),
+                  );
+                },
+              ),
+// Khoảng cách dưới cùng
             ],
           ),
         ),
