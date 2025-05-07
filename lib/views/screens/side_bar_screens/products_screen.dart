@@ -28,16 +28,17 @@ class _ProductsScreenState extends State<ProductsScreen> {
   //final bool _isLoading = false;
 
 
-  final List<String> _categoryList = [];
+  List<Map<String, dynamic>> _categoryList = [];
+
   final List<String> _sizeList = [];
   final List<Uint8List> _images = [];
   final List<String> _imageUrls = [];
 
-  String? selectedCategory;
+  int? selectedCategory;
   bool isLoading = false;
   String? productName;
-  double? productPrice;
-  double? discount;
+  int ? productPrice;
+  int ? discount;
   int? quantity;
   String? description;
 
@@ -66,14 +67,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Future<void> _getCategories() async {
-    final response = await supabase.from('categories').select();
+    final response = await supabase.from('categories').select('id, category_name');
 
     setState(() {
-      for (var item in response) {
-        _categoryList.add(item['category_name'] ?? 'Unknown');
-      }
+      _categoryList = List<Map<String, dynamic>>.from(response);
     });
   }
+
 
   @override
   void initState() {
@@ -88,14 +88,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
       for (var img in _images) {
         final fileName = '${uuid.v4()}.png';
 
-        final response = await storage.from('product-images').uploadBinary(
+        final response = await storage.from('products').uploadBinary(
           fileName,
           img,
           fileOptions: const FileOptions(upsert: true),
         );
 
         if (response != null) {
-          final imageUrl = storage.from('product-images').getPublicUrl(fileName);
+          final imageUrl = storage.from('products').getPublicUrl(fileName);
           setState(() {
             _imageUrls.add(imageUrl);
           });
@@ -132,9 +132,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
     });
     await uploadImageToStorage();
     if (_imageUrls.isNotEmpty) {
-      final productId = Uuid().v4();
       await supabase.from('products').insert({
-        'productId': productId,
         'productName': productName,
         'productPrice': productPrice,
         'productSize': _sizeList,
@@ -142,7 +140,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
         'description': description,
         'discount': discount,
         'quantity': quantity,
-        //'images': _imageUrls,
+        'created_at': DateTime.now().toIso8601String(),
+        'productImage': _imageUrls,  // Thêm _imageUrls vào nếu cần
       }).whenComplete(() {
         setState(() {
           isLoading = false;
@@ -153,6 +152,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
       });
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +202,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 children: [
                   Flexible(child: TextFormField(
                     onChanged: (value){
-                      productPrice = double.parse(value);
+                      if (value.isNotEmpty) {
+                        try {
+                          productPrice = int.parse(value);
+                        } catch (e) {
+                          productPrice = null;
+                        }
+                      }
                     },
                     validator: (value){
                       if (value!.isEmpty){
@@ -234,7 +241,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 
               TextFormField(
                 onChanged: (value) {
-                  discount = double.parse(value);
+                  if (value.isNotEmpty) {
+                    try {
+                      discount = int.parse(value);
+                    } catch (e) {
+                      discount = null;
+                    }
+                  }
                 },
                 validator: (value){
                   if (value!.isEmpty){
@@ -258,7 +271,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
               TextFormField(
                 onChanged: (value){
-                  quantity = int.parse(value);
+                  if (value.isNotEmpty) {
+                    try {
+                      quantity = int.parse(value);
+                    } catch (e) {
+                      quantity = null;
+                    }
+                  }
                 },
                 validator: (value){
                   if (value!.isEmpty){
@@ -440,27 +459,30 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   }
 
-  Widget builDropDownField () {
-      return DropdownButtonFormField(
-          decoration: InputDecoration(
-            labelText: 'Select category',
-            filled: true,
-            fillColor: Colors.grey[200],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-          ),
-          items: _categoryList.map((value){
-        return DropdownMenuItem(
-            value: value,
-            child: Text(value));
-      }).toList(), onChanged: (value) {
-        if (value!=null){
-          setState(() {
-            selectedCategory =value;
-          });
-        }
-      });
+  Widget builDropDownField() {
+    return DropdownButtonFormField<int>(
+      decoration: InputDecoration(
+        labelText: 'Select category',
+        filled: true,
+        fillColor: Colors.grey[200],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      value: selectedCategory,
+      items: _categoryList.map((category) {
+        return DropdownMenuItem<int>(
+          value: category['id'],
+          child: Text(category['category_name']),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          selectedCategory = value;
+        });
+      },
+    );
   }
+
 }
