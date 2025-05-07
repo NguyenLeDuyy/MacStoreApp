@@ -33,12 +33,27 @@ class BusinessAccountsServices {
   // Ví dụ: cập nhật trạng thái vendor
   Future<void> updateVendorStatus(String vendorId, String newStatus) async {
     try {
-      await _client
+      final response = await _client
           .from('business_accounts')
-          .update({'status': newStatus, 'reviewed_at': DateTime.now().toIso8601String()})
-          .eq('id', vendorId);
+          .update({
+        'status': newStatus,
+        'reviewed_at': DateTime.now().toIso8601String()
+      })
+          .eq('id', vendorId)
+          .select(); // Thêm .select() ở đây
+
+      print('Service: Supabase update response: $response');
+
+      if (response.isEmpty) {
+        print('Service: Update executed, but no rows were affected. Check vendorId or RLS policies.');
+        // Bạn có thể muốn throw một lỗi cụ thể ở đây để UI biết
+        // throw Exception('No vendor record was updated. Please check the ID or permissions.');
+      }
     } catch (e) {
-      print('Error updating vendor status: $e');
+      print('Service Error: Error updating vendor status: $e');
+      if (e is PostgrestException) {
+        print('Service Error: PostgrestException code: ${e.code}, message: ${e.message}, details: ${e.details}, hint: ${e.hint}');
+      }
       throw Exception('Failed to update vendor status: $e');
     }
   }
