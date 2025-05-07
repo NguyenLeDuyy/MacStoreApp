@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/models/category_models.dart';
-import 'package:mac_store_app/views/screens/inner_screens/product_detail_screen.dart';
 import 'package:mac_store_app/views/screens/nav_screens/widgets/popularItem.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -25,11 +23,11 @@ class CategoryProductScreen extends StatelessWidget {
 
       return categoryMap;
     }
-    final Stream<List<Map<String, dynamic>>> _productStream = Supabase.instance.client
+    final Stream<List<Map<String, dynamic>>> productStream = Supabase.instance.client
         .from('products')
         .stream(primaryKey: ['productId']);
 
-    _productStream.listen((data) async {
+    productStream.listen((data) async {
       final categoryMap = await fetchCategories();
 
       // Chuyển đổi `categoryId` sang `categoryName`
@@ -58,7 +56,7 @@ class CategoryProductScreen extends StatelessWidget {
       ),
 
       body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: _productStream,
+        stream: productStream,
         builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('Something went wrong'));

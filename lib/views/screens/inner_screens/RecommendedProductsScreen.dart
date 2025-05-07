@@ -3,7 +3,7 @@ import 'package:mac_store_app/views/screens/nav_screens/widgets/product_item.dar
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RecommendedProductsScreen extends StatelessWidget {
-  const RecommendedProductsScreen({Key? key}) : super(key: key);
+  const RecommendedProductsScreen({super.key});
 
   // Hàm lấy categoryName từ bảng categories theo categoryId
   Future<String> getCategoryName(int categoryId) async {
@@ -108,3 +108,4 @@ class RecommendedProductsScreen extends StatelessWidget {
     );
   }
 }
+
