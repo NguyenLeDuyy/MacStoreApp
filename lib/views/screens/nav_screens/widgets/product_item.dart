@@ -329,7 +329,7 @@ class ProductItemWidget extends ConsumerWidget {
                     else if (productData['categories'] != null) {
                       debugPrint('DEBUG: Dữ liệu category không phải Map: ${productData['categories']}');
                     }
-
+                    print('Seller ID: ${productData['seller_id']}'); // Kiểm tra giá trị của seller_id
                     cartNotifier.addProductToCart(
                       productName: productData['productName'] ?? 'Không tên',
                       productPrice: (productData['productPrice'] as num?)?.toInt() ?? 0,
@@ -341,6 +341,7 @@ class ProductItemWidget extends ConsumerWidget {
                       productSize: productData['productSize'].toString(),
                       discount: (productData['discount'] as num?)?.toInt() ?? 0,
                       description: productData['description'] ?? 'Không có mô tả',
+                      seller_id: productData['seller_id']?? 'Không tên',
                     );
                   }
                 },

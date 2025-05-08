@@ -248,10 +248,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                         icon: const Icon(Icons.add, color: Colors.white),
                         label: Text("Tải Sản phẩm lên", style: GoogleFonts.lato(color: Colors.white)),
                         onPressed: () {
-                          // TODO: Implement upload product navigation/logic
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Chức năng tải sản phẩm chưa được triển khai.")));
-
-                          // Chuyển đến trang ProductUploadPage
+                          /// Chuyển đến trang ProductUploadPage
                           Navigator.push(
                             context,
                             MaterialPageRoute(
