@@ -331,7 +331,9 @@ class _checkoutScreenState extends ConsumerState<checkoutScreen> {
                   setState(() { _selectedPaymentMethod = value!; });
                 },
               ),
+
             ),
+            const SizedBox(height: 30),
           ],
         ),
       ),
@@ -454,8 +456,10 @@ class _checkoutScreenState extends ConsumerState<checkoutScreen> {
                   setState(() { _isLoading = false; });
                 }
               }
+
             }
           },
+
           child: _isLoading
               ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3,))
               : const Text('ĐẶT HÀNG'),
