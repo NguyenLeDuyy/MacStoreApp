@@ -79,35 +79,6 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
 
 
         // --- SỬA LỖI LẤY COUNT ---
-        // 2. Lấy tổng số đơn hàng
-        // *** QUAN TRỌNG: Thay 'seller_id' bằng tên cột đúng trong bảng 'orders'
-        //     dùng để liên kết với người bán (user.id) ***
-        final orderCountResponse = await supabase
-            .from('orders')
-            .select() // Không cần select cột cụ thể khi chỉ lấy count
-            .eq('buyerId', user.id) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
-            .count(CountOption.exact); // <-- Lấy count chính xác
-        _totalOrders = orderCountResponse.count ?? 0; // Gán trực tiếp kết quả count
-
-        // Lấy số đơn hàng đang chờ xử lý (chưa giao)
-        final pendingResponse = await supabase
-            .from('orders')
-            .select()
-            .eq('buyerId', user.id) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
-            .eq('delivered', false) // Lọc đơn chưa giao
-            .count(CountOption.exact);
-        _pendingOrders = pendingResponse.count ?? 0;
-
-        // 3. Lấy tổng số đánh giá
-        // *** QUAN TRỌNG: Thay 'seller_id' bằng tên cột đúng trong bảng 'reviews'
-        //     dùng để liên kết với người bán (user.id) ***
-        final reviewsResponse = await supabase
-            .from('reviews')
-            .select()
-            .eq('buyerId', user.id) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
-            .count(CountOption.exact);
-        _totalReviews = reviewsResponse.count ?? 0;
-        // --------------------------
         // 4. Lấy tất cả sản phẩm của người bán (seller)
         // Bước 1: Lấy business account ID từ user ID
         final businessAccountRes = await supabase
@@ -125,7 +96,46 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
             .eq('seller_id', businessAccountId);
 
         _products = List<Map<String, dynamic>>.from(productsRes);
-print(_products);
+        print(_products);
+
+        // 2. Lấy tổng số đơn hàng
+        // *** QUAN TRỌNG: Thay 'seller_id' bằng tên cột đúng trong bảng 'orders'
+        //     dùng để liên kết với người bán (user.id) ***
+        final orderCountResponse = await supabase
+            .from('orders')
+            .select() // Không cần select cột cụ thể khi chỉ lấy count
+            .eq('seller_id', businessAccountId) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
+            .count(CountOption.exact); // <-- Lấy count chính xác
+        _totalOrders = orderCountResponse.count ?? 0; // Gán trực tiếp kết quả count
+
+        // Lấy số đơn hàng đang chờ xử lý (chưa giao)
+        final pendingResponse = await supabase
+            .from('orders')
+            .select()
+            .eq('seller_id', businessAccountId) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
+            .eq('delivered', false) // Lọc đơn chưa giao
+            .count(CountOption.exact);
+        _pendingOrders = pendingResponse.count ?? 0;
+
+        // 3. Lấy tổng số đánh giá
+        // *** QUAN TRỌNG: Thay 'seller_id' bằng tên cột đúng trong bảng 'reviews'
+        //     dùng để liên kết với người bán (user.id) ***
+        final ordersRes = await supabase
+            .from('orders')
+            .select('id')
+            .eq('seller_id', businessAccountId);
+
+        final orderIds = (ordersRes as List)
+            .map((order) => order['id'].toString()) // Giữ nguyên UUID
+            .toList();
+
+        final reviewsResponse = await supabase
+            .from('reviews')
+            .select()
+            .or(orderIds.map((id) => 'orderId.eq.$id').join(',')) // Tạo chuỗi điều kiện OR
+            .count(CountOption.exact);
+        _totalReviews = reviewsResponse.count ?? 0;
+        // --------------------------
 
 
 

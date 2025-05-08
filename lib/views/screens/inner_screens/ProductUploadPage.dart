@@ -61,19 +61,19 @@ class _ProductsScreenState extends State<ProductsScreen> {
     });
   }
 
-  Future<int> getNextProductId() async {
-    final data = await supabase
-        .from('products')
-        .select('productId')
-        .order('productId', ascending: false)
-        .limit(1);
-
-    if (data.isNotEmpty && data[0]['productId'] != null) {
-      return (data[0]['productId'] as int) + 1;
-    } else {
-      return 1; // Nếu chưa có sản phẩm nào
-    }
-  }
+  // Future<int> getNextProductId() async {
+  //   final data = await supabase
+  //       .from('products')
+  //       .select('productId')
+  //       .order('productId', ascending: false)
+  //       .limit(1);
+  //
+  //   if (data.isNotEmpty && data[0]['productId'] != null) {
+  //     return (data[0]['productId'] as int) + 1;
+  //   } else {
+  //     return 1; // Nếu chưa có sản phẩm nào
+  //   }
+  // }
 
   Future<String?> getSellerId(String email) async {
     final response = await Supabase.instance.client
@@ -129,7 +129,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
         return;
       }
 
-      final int productId = await getNextProductId();
+     // final int productId = await getNextProductId();
       print({
         'productName': productName,
         'productPrice': productPrice,
@@ -145,7 +145,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       });
 
       await supabase.from('products').insert({
-        'productId': productId,
+       // 'productId': productId,
         'productName': productName,
         'productPrice': productPrice,
         'productSize': _sizeList.join(', '),
@@ -155,8 +155,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
         'quantity': quantity,
         'productImage': _imageUrls,
         'seller_id': sellerId,
-        'created_at': DateTime.now().toIso8601String(),  // Thêm created_at
-        'updated_at': DateTime.now().toIso8601String(),  // Thêm updated_at
+        // 'created_at': DateTime.now().toIso8601String(),  // Thêm created_at
+        // 'updated_at': DateTime.now().toIso8601String(),  // Thêm updated_at
       }).whenComplete(() {
         setState(() {
           isLoading = false;
