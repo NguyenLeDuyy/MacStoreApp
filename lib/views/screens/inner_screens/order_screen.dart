@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/views/screens/inner_screens/order_detail_screen.dart';
@@ -22,6 +23,8 @@ class _OrderScreenState extends State<OrderScreen> {
         .stream(primaryKey: ['id'])
         .eq('buyerId', Supabase.instance.client.auth.currentUser!.id)
         .order('created_at');
+    setState(() {}
+    );
 
     return Scaffold(
         appBar: PreferredSize(
@@ -49,7 +52,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 ),
                 Positioned(
                   left: 10, // Adjust position as needed
-                  top: 50,
+                  top: 40,
                   child: IconButton(
                     icon: Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () {
@@ -101,6 +104,7 @@ class _OrderScreenState extends State<OrderScreen> {
             itemCount: snapshot.data!.length ,
             itemBuilder: (context, index){
               final orderData = snapshot.data![index];
+
              // print(snapshot.data); // Kiểm tra toàn bộ dữ liệu trả về
               return Padding(
                 padding: const  EdgeInsets.symmetric(
@@ -108,12 +112,21 @@ class _OrderScreenState extends State<OrderScreen> {
                 vertical: 25,
               ),
                 child: InkWell(
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context){
-                    return OrderDetailScreen(orderData: orderData,);
-                  }));
-                },
-                child: Container(
+                  onTap: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OrderDetailScreen(orderData: orderData),
+                      ),
+                    );
+
+                    if (result == true) {
+                      setState(() {}); // Cập nhật lại giao diện nếu có thay đổi
+                    }
+                  },
+
+
+                  child: Container(
                   width: 335,
                   height: 153,
                   clipBehavior: Clip.antiAlias,

@@ -12,6 +12,8 @@ class FavoriteScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final favoriteData = ref.read(favoriteProvider.notifier);
     final wishItemData= ref.watch(favoriteProvider);
+
+
     return  Scaffold(
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(
@@ -44,6 +46,7 @@ class FavoriteScreen extends ConsumerWidget {
                           ),
                           badgeContent: Text(
                             wishItemData.length.toString(),
+
                             style: GoogleFonts.lato(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

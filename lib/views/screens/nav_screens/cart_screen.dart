@@ -176,7 +176,6 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                       physics: const ScrollPhysics(),
                       itemBuilder: (context, index) {
                         final cartItem = cartData.values.toList()[index];
-
                         return Padding(
                           padding: EdgeInsets.all(8),
                           child: Card(

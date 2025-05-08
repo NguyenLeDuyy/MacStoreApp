@@ -149,7 +149,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 : (rawId is num ? rawId.toInt() : 0);
 
         await supabase.from('reviews').insert({
-          'orderId': widget.orderData['orderId'],
+          'orderId': widget.orderData['id'],
           'productId': productId,
           'buyerId': supabase.auth.currentUser!.id,
           'fullName': widget.orderData['fullName'],
@@ -323,7 +323,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(true),
           tooltip: 'Quay lại',
         ),
         title: const Text('Chi tiết đơn hàng'),
@@ -569,6 +569,31 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         ),
                       ),
                     ),
+// Nút Hủy đơn hàng (chỉ hiện nếu đơn hàng đang xử lý)
+                  if (widget.orderData['processing'] == true && widget.orderData['delivered'] == false)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Center(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(
+                            Icons.cancel_outlined,
+                            size: 18,
+                            color: Colors.red,
+                          ),
+                          label: const Text(
+                            'Hủy đơn hàng',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            side: const BorderSide(color: Colors.red),
+                            foregroundColor: Colors.red,
+                          ),
+                          onPressed: _cancelOrder, // Hàm xử lý hủy đơn hàng
+                        ),
+                      ),
+                    ),
+
                 ],
               ),
             ),
@@ -576,6 +601,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         ],
       ),
     );
+    
   }
 
   Widget _buildInfoRow(
@@ -623,4 +649,48 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     ];
     return parts.where((p) => p.isNotEmpty).join(', ');
   }
+
+
+
+  void _cancelOrder() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xác nhận'),
+        content: const Text('Bạn có chắc chắn muốn hủy đơn hàng này?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Không')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Có')),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        final orderId = widget.orderData['id']; // ID đơn hàng
+
+        await Supabase.instance.client
+            .from('orders')
+            .update({'processing': false})
+            .eq('id', orderId);
+
+        // Cập nhật UI local
+        setState(() {
+          widget.orderData['processing'] = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã hủy đơn hàng thành công.')),
+        );
+      } catch (e) {
+        print('Lỗi khi hủy đơn hàng: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Lỗi khi kết nối Supabase.')),
+        );
+      }
+    }
+  }
+
+
+
 }
