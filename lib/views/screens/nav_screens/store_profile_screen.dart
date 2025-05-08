@@ -336,6 +336,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                   ],
                 ),
               ),
+              const SizedBox(height: 30),
 
             ],
           ),

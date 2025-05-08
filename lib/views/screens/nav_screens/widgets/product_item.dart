@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:mac_store_app/views/screens/inner_screens/product_detail_screen.dart';
 import 'package:mac_store_app/provider/favorite_provider.dart';
 import 'package:mac_store_app/provider/cart_provider.dart';
@@ -49,7 +50,9 @@ class ProductItemWidget extends ConsumerWidget {
 // Kiểm tra xem sản phẩm có trong giỏ hàng hay không
     final isInCart = cartItems.containsKey(productId);
 
-
+    final formattedPrice = NumberFormat("#,###", "vi_VN")
+        .format(productData['productPrice'])
+        .replaceAll(',', '.');
 
 
 
@@ -105,7 +108,7 @@ class ProductItemWidget extends ConsumerWidget {
 
             Positioned(
               left: 7,
-              top: 177,
+              top: 171,
               child: Text(
                 categoryName,
                 style: GoogleFonts.lato(
@@ -117,10 +120,10 @@ class ProductItemWidget extends ConsumerWidget {
             ),
 
             Positioned(
-              left: 7,
-              top: 207,
+              left: 5,
+              top: 187,
               child: Text(
-                '\$${productData['discount']}',
+                '${NumberFormat("#,###", "vi_VN").format(productData['discount']).replaceAll(',', '.')}₫',
                 style: GoogleFonts.lato(
                   color: const Color(0xFF1E3354),
                   fontWeight: FontWeight.w600,
@@ -131,10 +134,10 @@ class ProductItemWidget extends ConsumerWidget {
             ),
 
             Positioned(
-              left: 51,
-              top: 210,
+              left: 7,
+              top: 217,
               child: Text(
-                "\$${productData['productPrice']}",
+                "${NumberFormat("#,###", "vi_VN").format(productData['productPrice']).replaceAll(',', '.')}₫",
                 style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 16,
@@ -144,6 +147,7 @@ class ProductItemWidget extends ConsumerWidget {
                 ),
               ),
             ),
+
 
             Positioned(
               left: 9,
@@ -203,7 +207,7 @@ class ProductItemWidget extends ConsumerWidget {
 
             Positioned(
               left: 5,
-              top: 155,
+              top: 152,
               child: Row(
                 children: [
                   // 5 ngôi sao nhỏ phản ánh điểm trung bình
@@ -278,11 +282,11 @@ class ProductItemWidget extends ConsumerWidget {
               ),
             ),
             Positioned(
-              left: 104,
-              top: 210,
+              left: 109,
+              top: 215,
               child: Container(
-                width: 40,
-                height: 35,
+                width: 35,
+                height: 30,
                 decoration: BoxDecoration(
                   color: Color(0xFFFA634D),
                   borderRadius: const BorderRadius.only(
@@ -302,8 +306,8 @@ class ProductItemWidget extends ConsumerWidget {
               ),
             ),
             Positioned(
-              left: 104,
-              top: 205,
+              left: 106,
+              top: 207,
               child: IconButton(
                 onPressed: () {
                   final cartNotifier = ref.read(cartProvier.notifier);
