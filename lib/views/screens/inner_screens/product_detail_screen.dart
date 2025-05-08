@@ -161,6 +161,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               productSize: '',
               discount: data['discount'],
               description: data['description'],
+              seller_id: data['seller_id']
             );
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               margin: const EdgeInsets.all(15),

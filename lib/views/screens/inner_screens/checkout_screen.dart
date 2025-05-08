@@ -403,7 +403,25 @@ class _checkoutScreenState extends ConsumerState<checkoutScreen> {
                 // final userDataResponse = await supabase...
 
                 List<Map<String, dynamic>> ordersToInsert = [];
+                print(cartNotifier.getCartItem.values);
                 for (var item in cartNotifier.getCartItem.values) {
+                  print('Item details: ${item.toString()}');
+// Kiểm tra và in ra dữ liệu của item
+                  print('Product ID: ${item.productId}');
+                  print('Product Name: ${item.productName}');
+                  print('Product Size: ${item.productSize}');
+                  print('Quantity: ${item.quantity}');
+                  print('Product Price: ${item.productPrice}');
+                  print('Category Name: ${item.categoryName}');
+                  print('Product Image: ${item.imageUrl[0]}');
+                  print('State: $_state');
+                  print('City: $_city');
+                  print('Locality: $_locality');
+                  print('Email: $_email');
+                  print('Full Name: $_fullName');
+                  print('Buyer ID: $userId');
+                  print('Seller_id: ${item.seller_id}');
+
                   ordersToInsert.add({
                     'productId': item.productId,
                     'productName': item.productName,
@@ -419,6 +437,8 @@ class _checkoutScreenState extends ConsumerState<checkoutScreen> {
                     'email': _email, // Lấy email từ biến state
                     'fullName': _fullName, // Lấy tên từ biến state
                     'buyerId': userId,
+                    'seller_id': item.seller_id,
+
 
 
                   });

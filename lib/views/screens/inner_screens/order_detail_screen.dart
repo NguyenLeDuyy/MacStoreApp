@@ -38,6 +38,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     super.dispose();
   }
 
+
   Future<bool> hasUserReviewedProduct(int productId) async {
     final user = supabase.auth.currentUser;
     if (user == null) return false;
@@ -61,10 +62,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       _isLoadingReviewStatus = true;
     });
 
-    // parse productId về int tương tự như trước
     final rawId = widget.orderData['productId'];
     final int productId =
-        rawId is String ? int.parse(rawId) : (rawId is num ? rawId.toInt() : 0);
+    rawId is String ? int.parse(rawId) : (rawId is num ? rawId.toInt() : 0);
 
     final user = supabase.auth.currentUser;
     if (user == null) {
@@ -76,22 +76,22 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     }
 
     try {
-      final data =
-          await supabase
-              .from('reviews')
-              .select('id, rating, comment')
-              .eq('orderId', widget.orderData['id'])
-              .eq('buyerId', user.id)
-              .maybeSingle(); // single() nếu chắc là 1 bản ghi; or maybeSingle() nếu có thể null
+      final data = await supabase
+          .from('reviews')
+          .select('id, rating, comment')
+          .eq('orderId', widget.orderData['id'])
+          .eq('buyerId', user.id)
+          .maybeSingle();
 
       if (data != null) {
         _existingReviewId = data['id'] as int;
         _existingRating = (data['rating'] as num).toDouble();
         _existingComment = data['comment'] as String? ?? '';
-        _hasUserReviewed = true;
+        _hasUserReviewed = true;  // Người dùng đã đánh giá
       } else {
-        _hasUserReviewed = false;
+        _hasUserReviewed = false;  // Chưa có đánh giá
       }
+
       print("Review data: $data");
       print("_hasUserReviewed: $_hasUserReviewed");
 
@@ -105,6 +105,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       });
     }
   }
+
 
   Map<String, dynamic> _getStatusInfo() {
     if (widget.orderData['delivered'] == true) {
@@ -165,7 +166,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
       //cập nhật dữ liệu rating, totalReivews cho table products:
       await _updateProductAggregateRating(widget.orderData['productId']);
-
 
 
       // Thông báo thành công
@@ -306,6 +306,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       print('Lỗi cập nhật aggregate product: $e');
     }
   }
+
 
 
   @override

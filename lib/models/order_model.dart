@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Nếu bạn muốn thêm getter format ngày/tiền
-
 class OrderModel {
   final String orderId; // Khóa chính (giả sử là 'orderId' hoặc 'id' tùy DB của bạn)
   final String productId;
@@ -19,6 +18,7 @@ class OrderModel {
   final bool processing;
   final bool delivered;
   final DateTime createdAt; // Ngày tạo đơn hàng
+  final String seller_id;
 
   OrderModel({
     required this.orderId,
@@ -38,6 +38,7 @@ class OrderModel {
     required this.processing,
     required this.delivered,
     required this.createdAt,
+    required this.seller_id,
   });
 
   // Factory constructor để tạo OrderModel từ Map lấy về từ Supabase
@@ -65,7 +66,7 @@ class OrderModel {
       createdAt: map['created_at'] != null
           ? DateTime.tryParse(map['created_at']) ?? DateTime.now()
           : DateTime.now(),
-    );
+      seller_id: map['seller_id'] ?? '',     );
   }
 
   // --- Các Getter hữu ích (Tùy chọn) ---

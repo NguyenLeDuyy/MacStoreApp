@@ -29,43 +29,25 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar:
-        BottomNavigationBar(
-          selectedItemColor: Colors.purple,
-          unselectedItemColor: Colors.grey,
-          currentIndex: _pageIndex,
-          onTap: (value){
-            setState(() {
-              _pageIndex = value;
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          items: [
-        BottomNavigationBarItem(
-            icon: Image.asset(
-                "assets/icons/home.png",
-                width:25), label: "Trang chủ"),
-        BottomNavigationBarItem(
-            icon: Image.asset(
-                "assets/icons/love.png",
-                width:25), label: "Yêu thích"),
-        BottomNavigationBarItem(
-            icon: Image.asset(
-                "assets/icons/mart.png",
-                width:25), label: "Cửa hàng"),
-        BottomNavigationBarItem(
-            icon: Image.asset(
-                "assets/icons/cart.png",
-                width:25), label: "Giỏ hàng"),
-        BottomNavigationBarItem(
-            icon: Image.asset(
-                "assets/icons/user.png",
-                width:25), label: "Tài khoản")
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _pageIndex,
+        onTap: (value) {
+          setState(() {
+            _pageIndex = value;
+          });
+        },
+        selectedItemColor: Colors.pinkAccent,
+        unselectedItemColor: Colors.grey,
 
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Yêu thích'),
+          BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Cửa hàng'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Giỏ hàng'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Tài khoản'),
+        ],
+      ),
 
-
-
-      ]),
       body: _pages[_pageIndex],
     );
   }

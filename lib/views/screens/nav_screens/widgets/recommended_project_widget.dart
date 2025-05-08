@@ -83,6 +83,7 @@ class _RecommendedProjectWidgetState extends State<RecommendedProjectWidget> {
                 padding: const EdgeInsets.only(right: 12.0), // Thêm khoảng cách giữa các item
                 child: ProductItemWidget(
                   productData: productData,
+
                 ),
               );
             },
