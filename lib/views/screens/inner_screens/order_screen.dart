@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:mac_store_app/views/screens/inner_screens/order_detail_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -231,11 +232,9 @@ class _OrderScreenState extends State<OrderScreen> {
                                                 height: 2,
                                               ),
                                               Text(
-                                                "\$${orderData['price']}",
+                                                '${NumberFormat("#,###", "vi_VN").format(orderData['price']).replaceAll(',', '.')} ₫',
                                                 style: const TextStyle(
-                                                  color: Color(
-                                                    0xff0b0c1e,
-                                                  ),
+                                                  color: Color(0xff0b0c1e),
                                                   fontSize: 14,
                                                 ),
                                               ),

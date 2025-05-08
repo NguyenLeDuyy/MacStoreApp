@@ -28,8 +28,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
   int? selectedCategoryId;
   bool isLoading = false;
   String? productName;
-  double? productPrice;
-  double? discount;
+  int? productPrice;
+  int? discount;
   int? quantity;
   String? description;
 
@@ -172,7 +172,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   Widget buildDropDownField() {
     return DropdownButtonFormField(
       decoration: InputDecoration(
-        labelText: 'Select category',
+        labelText: 'Danh mục',
         filled: true,
         fillColor: Colors.grey[200],
         border: OutlineInputBorder(
@@ -218,7 +218,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 children: [
                   Expanded(
                     child: TextFormField(
-                      onChanged: (value) => productPrice = double.tryParse(value),
+                      onChanged: (value) => productPrice = int.tryParse(value),
                       validator: (value) => value!.isEmpty ? 'Giá bán' : null,
                       keyboardType: TextInputType.number,
                       decoration: _inputDecoration('Giá bán'),
@@ -230,7 +230,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               ),
               const SizedBox(height: 20),
               TextFormField(
-                onChanged: (value) => discount = double.tryParse(value),
+                onChanged: (value) => discount = int.tryParse(value),
                 validator: (value) => value!.isEmpty ? 'Giảm giá' : null,
                 keyboardType: TextInputType.number,
                 decoration: _inputDecoration('Giảm giá'),
@@ -329,8 +329,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   child: isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
-                    'Upload Product',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    'Thêm sản phẩm',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
               ),

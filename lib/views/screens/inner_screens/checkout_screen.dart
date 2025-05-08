@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:mac_store_app/provider/cart_provider.dart';
 import 'package:mac_store_app/views/screens/inner_screens/shipping_address_screen.dart';
 import 'package:mac_store_app/views/screens/main_screen.dart';
@@ -264,8 +265,8 @@ class _checkoutScreenState extends ConsumerState<checkoutScreen> {
                               ),
                             ),
                             const SizedBox(height: 6),
-                            Text( // Hiển thị cả số lượng và giá
-                              '${cartItem.quantity} x \$${cartItem.productPrice.toStringAsFixed(2)}',
+                            Text(
+                              '${cartItem.quantity} x ${NumberFormat("#,###", "vi_VN").format(cartItem.productPrice).replaceAll(',', '.')} ₫',
                               style: GoogleFonts.lato(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,

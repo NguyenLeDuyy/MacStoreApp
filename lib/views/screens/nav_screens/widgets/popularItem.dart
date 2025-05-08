@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../inner_screens/product_detail_screen.dart';
 
@@ -46,9 +47,10 @@ class PopularItem extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8,),
-            Text("\$${productData['discount']}",
+            Text(
+              '${NumberFormat("#,###", "vi_VN").format(productData['discount']).replaceAll(',', '.')} ₫',
               style: const TextStyle(
-                color: Color(0xff1e3354,),
+                color: Color(0xff1e3354),
                 fontSize: 17,
                 letterSpacing: 0.4,
                 fontWeight: FontWeight.w600,

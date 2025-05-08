@@ -6,6 +6,7 @@ import 'package:mac_store_app/provider/cart_provider.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:mac_store_app/views/screens/inner_screens/checkout_screen.dart';
 import 'package:mac_store_app/views/screens/main_screen.dart';
+import 'package:intl/intl.dart';
 
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
@@ -217,9 +218,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                         ),
 
                                         Text(
-                                          cartItem.productPrice.toStringAsFixed(
-                                            2,
-                                          ),
+                                          '${NumberFormat("#,###", "vi_VN").format(cartItem.productPrice).replaceAll(',', '.')} ₫',
                                           style: GoogleFonts.lato(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -321,7 +320,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                       ),
                     ),
                     Align(
-                      alignment: Alignment(-0.63, -0.26),
+                      alignment: Alignment(-0.98, -0.26),
                       child: Text('Tổng cộng', style: GoogleFonts.roboto(
                         color: const Color(0xFFA1A1A1),
                         fontSize: 16,
@@ -330,14 +329,17 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     ),
 
                     Align(
-                      alignment: const Alignment(-0.19, -0.31),
+                      alignment: const Alignment(-0.10, -0.31),
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: Text(totalAmount.toStringAsFixed(2), style: GoogleFonts.roboto(
-                          color: const Color(0xFFFF6466),
-                          fontSize: 24,
-                          fontWeight: FontWeight.w500,
-                        ),),
+                        child: Text(
+                          '${NumberFormat("#,###", "vi_VN").format(totalAmount).replaceAll(',', '.')} ₫',
+                          style: GoogleFonts.roboto(
+                            color: const Color(0xFFFF6466),
+                            fontSize: 24,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
 
