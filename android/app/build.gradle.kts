@@ -49,6 +49,5 @@ flutter {
 
 dependencies {
     // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:33.11.0"))
 
 }
