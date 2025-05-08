@@ -196,65 +196,6 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
                   ),
                   const SizedBox(height: 24),
 
-                  //confirm password
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Confirm Password',
-                      style: GoogleFonts.nunitoSans(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    obscureText: true,
-                    onChanged: (value) {
-                      confirmPassword = value;
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
-                      }
-                      if (value != password) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(9),
-                      ),
-                      labelText: "Re-enter your password",
-                      labelStyle: GoogleFonts.nunitoSans(
-                        fontSize: 14,
-                      ),
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Image.asset(
-                          'assets/icons/password.png',
-                          width: 20,
-                          height: 20,
-                        ),
-                      ),
-
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _isObscureConfirmPassword = !_isObscureConfirmPassword;
-                          });
-                        },
-                        icon: Icon(
-                          _isObscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
                   InkWell(
                     onTap: () {
                       if (_formKey.currentState!.validate()) {
