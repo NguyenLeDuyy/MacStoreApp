@@ -80,7 +80,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           await supabase
               .from('reviews')
               .select('id, rating, comment')
-              .eq('productId', productId)
+              .eq('orderId', widget.orderData['id'])
               .eq('buyerId', user.id)
               .maybeSingle(); // single() nếu chắc là 1 bản ghi; or maybeSingle() nếu có thể null
 
@@ -92,6 +92,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       } else {
         _hasUserReviewed = false;
       }
+      print("Review data: $data");
+      print("_hasUserReviewed: $_hasUserReviewed");
+
     } catch (e) {
       print('Lỗi load review: $e');
       _hasUserReviewed = false;
@@ -158,7 +161,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           'email': widget.orderData['email'],
           'created_at': DateTime.now().toIso8601String(),
         });
-      }
+        }
 
       //cập nhật dữ liệu rating, totalReivews cho table products:
       await _updateProductAggregateRating(widget.orderData['productId']);
