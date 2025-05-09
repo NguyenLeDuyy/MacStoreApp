@@ -29,7 +29,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _sendResetCode() async {
     final email = emailController.text.trim();
     if (!_validateEmail(email)) {
-      _showMessage('Email không hợp lệ! Vui lòng nhập đúng định dạng.'); // Invalid email message
+      _showMessage('Invalid email! Please enter correct format'); // Invalid email message
       return;
     }
 
@@ -40,15 +40,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       // Insert email and generated code into the email queue (you should send an email from here)
       await supabase.from('email_queue').insert({
         'email': email,
-        'subject': 'Mã xác thực đặt lại mật khẩu',
-        'message': 'Mã xác thực của bạn là: $generatedCode'
+        'subject': 'Password reset authentication code',
+        'message': 'Your verification code is: $generatedCode'
       });
 
-      _showMessage('Mã xác thực đã được gửi đến email!'); // Success message
+      _showMessage('Verification code has been sent to email!'); // Success message
       setState(() => currentStep = 2); // Move to the next step (enter the code and new password)
     } catch (e) {
-      _showMessage('Lỗi: ${e.toString()}'); // Error message if there's any issue
-      print('Lỗi: ${e.toString()}');
+      _showMessage('Error: ${e.toString()}'); // Error message if there's any issue
+      print('Error: ${e.toString()}');
     }
 
     setState(() => isLoading = false);
@@ -60,12 +60,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final newPassword = passwordController.text.trim();
 
     if (code.isEmpty || newPassword.isEmpty) {
-      _showMessage('Vui lòng nhập mã xác thực và mật khẩu mới.'); // Missing code or password
+      _showMessage('Please enter the verification code and new password'); // Missing code or password
       return;
     }
 
     if (code != generatedCode) {
-      _showMessage('Mã xác thực không đúng! Vui lòng thử lại.'); // Code mismatch
+      _showMessage('Verification code is incorrect! Please try again'); // Code mismatch
       return;
     }
 
@@ -74,13 +74,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     try {
       // Update user's password in Supabase
       await supabase.auth.updateUser(UserAttributes(password: newPassword));
-      _showMessage('Mật khẩu đã được cập nhật!'); // Password updated successfully
+      _showMessage('Password has been updated!'); // Password updated successfully
       Future.delayed(const Duration(seconds: 2), () {
         Navigator.pushReplacementNamed(context, '/login'); // Redirect to login screen
       });
     } catch (e) {
       _showMessage('Lỗi: ${e.toString()}'); // Error if something goes wrong
-      print('Lỗi: ${e.toString()}');
+      print('Error: ${e.toString()}');
     }
 
     setState(() => isLoading = false);
@@ -103,7 +103,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blue[50],
-      appBar: AppBar(title: const Text('Quên Mật Khẩu'), centerTitle: true),
+      appBar: AppBar(title: const Text('Forgot Password'), centerTitle: true),
       body: Center(
         child: Container(
           width: 400,
@@ -111,7 +111,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.5), blurRadius: 10, spreadRadius: 2)],
+            boxShadow: [BoxShadow(color: Colors.grey.withAlpha((0.5 * 255).toInt()), blurRadius: 10, spreadRadius: 2)],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -120,8 +120,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 16),
               Text(
                 currentStep == 1
-                    ? 'Nhập email của bạn để nhận mã xác thực'
-                    : 'Nhập mã xác thực và mật khẩu mới',
+                    ? 'Enter your email to receive verification code'
+                    : 'Enter verification code and new password',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -141,7 +141,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   controller: codeController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Mã xác thực',
+                    labelText: 'Authentication code',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.security),
                   ),
@@ -151,7 +151,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   controller: passwordController,
                   obscureText: true,
                   decoration: const InputDecoration(
-                    labelText: 'Mật khẩu mới',
+                    labelText: 'New Password',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.lock),
                   ),
@@ -170,7 +170,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
                 child: isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(currentStep == 1 ? 'Gửi Mã' : 'Đổi Mật Khẩu', style: const TextStyle(fontSize: 18)),
+                    : Text(currentStep == 1 ? 'Send code' : 'Changing Password', style: const TextStyle(fontSize: 18)),
               ),
             ],
           ),

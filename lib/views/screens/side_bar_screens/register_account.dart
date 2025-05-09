@@ -83,7 +83,7 @@ class _RegisterScreenAdminState extends State<RegisterScreenAdmin> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Create Your Account",
+                    "Create Your Account For Admin",
                     style: GoogleFonts.getFont(
                       'Lato',
                       color: Color(0xFF0d120E),

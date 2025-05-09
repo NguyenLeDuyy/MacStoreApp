@@ -15,7 +15,9 @@ class _OrderListWidgetState extends State<OrderListWidget> {
   @override
   void initState() {
     super.initState();
-    _ordersStream = Supabase.instance.client.from('orders').stream(primaryKey: ['id']);
+    _ordersStream = Supabase.instance.client
+        .from('orders')
+        .stream(primaryKey: ['id']);
     _ordersStream.listen((data) {
       setState(() {
         _orders = data;
@@ -31,95 +33,115 @@ class _OrderListWidgetState extends State<OrderListWidget> {
           .update({
         'delivered': delivered,
         'processing': false,
-        if (delivered) 'deliveriedCount': (orderData['deliveriedCount'] ?? 0) + 1,
+        if (delivered)
+          'deliveriedCount': (orderData['deliveriedCount'] ?? 0) + 1,
       })
           .eq('id', orderId);
-
-      setState(() {
-        orderData['delivered'] = delivered;
-        orderData['processing'] = false;
-        if (delivered) {
-          orderData['deliveriedCount'] = (orderData['deliveriedCount'] ?? 0) + 1;
-        }
-      }); // Cập nhật ngay UI
     }
   }
 
-  Widget orderDisplayData(Widget widget, int flex) {
+  Widget orderCell(Widget child, int flex) {
     return Expanded(
       flex: flex,
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          alignment: Alignment.center,
-          child: widget,
-        ),
+      child: Container(
+        margin: const EdgeInsets.all(4),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        alignment: Alignment.center,
+        child: child,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: _orders.length,
-      itemBuilder: (context, index) {
-        final orderData = _orders[index];
-        return Row(
+    return Column(
+      children: _orders.map((orderData) {
+        return Column(
           children: [
-            orderDisplayData(
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: Image.network(orderData['productImage']),
-              ),
-              1,
-            ),
-            orderDisplayData(
-              Text(
-                orderData['fullName'] ?? 'No Name',
-                style: const TextStyle(color: Colors.white),
-                overflow: TextOverflow.ellipsis,
-              ),
-              3,
-            ),
-            orderDisplayData(
-              Text(
-                "${orderData['State'] ?? ''} ${orderData['locality'] ?? ''}",
-                style: const TextStyle(color: Colors.white),
-                overflow: TextOverflow.ellipsis,
-              ),
-              2,
-            ),
-            orderDisplayData(
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3C55EF),
+            Row(
+              children: [
+                // Image
+                orderCell(
+                  SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image.network(
+                        orderData['productImage'] ?? '',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.broken_image, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  1,
                 ),
-                onPressed: () => _updateOrder(orderData, true),
-                child: orderData['delivered'] == true
-                    ? const Text('Delivered', style: TextStyle(color: Colors.white))
-                    : const Text('Mark Delivered', style: TextStyle(color: Colors.white)),
-              ),
-              1,
-            ),
-            orderDisplayData(
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+
+                // Full Name
+                orderCell(
+                  Text(
+                    orderData['fullName'] ?? 'No Name',
+                    style: const TextStyle(color: Colors.black),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  2,
                 ),
-                onPressed: () => _updateOrder(orderData, false),
-                child: const Text('Cancel', style: TextStyle(color: Colors.white)),
-              ),
-              1,
+
+                // Address
+                orderCell(
+                  Text(
+                    '${orderData['State'] ?? ''}, ${orderData['locality'] ?? ''}',
+                    style: const TextStyle(color: Colors.black),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  2,
+                ),
+
+                // Action (Mark Delivered)
+                orderCell(
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: orderData['delivered'] == true
+                          ? Colors.green // Delivered -> Green
+                          : const Color(0xFF3C55EF), // Not Delivered -> Blue
+                    ),
+                    onPressed: () => _updateOrder(orderData, true),
+                    child: Text(
+                      orderData['delivered'] == true
+                          ? 'Delivered'
+                          : 'Mark Delivered',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  1,
+                ),
+
+
+                // Reject (Cancel)
+                orderCell(
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    onPressed: () => _updateOrder(orderData, false),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  1,
+                ),
+              ],
+            ),
+            // Divider line for each row
+            const Divider(
+              color: Colors.black,
+              thickness: 1,
             ),
           ],
         );
-      },
+      }).toList(),
     );
   }
 }
