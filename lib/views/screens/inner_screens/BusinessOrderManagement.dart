@@ -179,7 +179,7 @@ class _PendingOrdersScreenState extends State<BussinessOrderManagement> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Đơn chờ xử lý'),
+        title: const Text('Tổng đơn hàng'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
