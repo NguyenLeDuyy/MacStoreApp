@@ -8,11 +8,15 @@ class CategoryListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // Tạo stream từ Supabase
     final Stream<List<Map<String, dynamic>>> _categoriesStream =
-    Supabase.instance.client.from('categories').stream(primaryKey: ['id']);
+    Supabase.instance.client
+        .from('categories')
+        .stream(primaryKey: ['id'])
+        .order('created_at');
 
-    return StreamBuilder<List<dynamic>>(
+
+    return StreamBuilder<List<Map<String, dynamic>>>(
       stream: _categoriesStream,
-      builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         }
@@ -25,8 +29,7 @@ class CategoryListWidget extends StatelessWidget {
           return Text("No categories found");
         }
 
-        final List<Map<String, dynamic>> categories =
-        snapshot.data!.cast<Map<String, dynamic>>();
+        final categories = snapshot.data!;
 
         return GridView.builder(
           shrinkWrap: true,
@@ -64,6 +67,7 @@ class CategoryListWidget extends StatelessWidget {
         );
       },
     );
+
 
   }
 }

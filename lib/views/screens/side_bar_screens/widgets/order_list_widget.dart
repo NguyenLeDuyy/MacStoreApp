@@ -91,7 +91,7 @@ class _OrderListWidgetState extends State<OrderListWidget> {
                 // Address
                 orderCell(
                   Text(
-                    '${orderData['State'] ?? ''}, ${orderData['locality'] ?? ''}',
+                    '${orderData['locality'] ?? ''}, ${orderData['state'] ?? ''}',
                     style: const TextStyle(color: Colors.black),
                     overflow: TextOverflow.ellipsis,
                   ),
