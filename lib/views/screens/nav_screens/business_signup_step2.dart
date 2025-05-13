@@ -63,12 +63,22 @@ class _SignUpAndCreateBusiness2State extends State<SignUpAndCreateBusiness2> {
         if (mounted) ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text("Lỗi khi chọn ảnh: $e"), backgroundColor: Colors.red));
       }
     } else {
-      print("Quyền truy cập ảnh bị từ chối.");
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Quyền truy cập ảnh bị từ chối. Vui lòng cấp quyền trong cài đặt."), backgroundColor: Colors.orange),
-      );
-      // openAppSettings(); // Có thể thêm nút mở cài đặt
-    }
+  if (mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text("Quyền truy cập ảnh bị từ chối. Vui lòng cấp quyền trong cài đặt."),
+        backgroundColor: Colors.orange,
+        action: SnackBarAction(
+          label: 'Cài đặt',
+          textColor: Colors.white,
+          onPressed: () {
+            openAppSettings();
+          },
+        ),
+      ),
+    );
+  }
+}
   }
 
   // Hàm Upload ảnh lên Supabase Storage

@@ -218,7 +218,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                         ),
 
                                         Text(
-                                          '${NumberFormat("#,###", "vi_VN").format(cartItem.productPrice).replaceAll(',', '.')} ₫',
+                                          '${NumberFormat("#,###", "vi_VN").format(cartItem.discount).replaceAll(',', '.')} ₫',
                                           style: GoogleFonts.lato(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,

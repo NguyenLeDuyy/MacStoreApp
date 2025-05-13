@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart'; // Cần cho ảnh
 import 'package:intl/intl.dart'; // Cần cho format số/tiền
+import 'package:mac_store_app/views/screens/inner_screens/BusinessOrderManagement.dart';
 import 'package:mac_store_app/views/screens/inner_screens/ProductUploadPage.dart';
 import 'package:mac_store_app/views/screens/nav_screens/business_signup_step1.dart'; // Import màn hình đăng ký
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../inner_screens/BusinessReviewManagement.dart';
+import '../inner_screens/PendingOrdersScreen.dart';
 import '../inner_screens/RecommendedProductsScreen.dart'; // Import Supabase
 // Import PostgrestException để bắt lỗi cụ thể (tùy chọn)
 // import 'package:postgrest/postgrest.dart';
@@ -22,7 +25,6 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   // Khởi tạo Supabase client
   final SupabaseClient supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _products = []; // Danh sách sản phẩm của người bán
-
 
   // Các biến trạng thái
   bool _isLoading = true; // Trạng thái loading ban đầu
@@ -63,11 +65,17 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
 
     try {
       // 1. Lấy thông tin tài khoản doanh nghiệp từ bảng 'business_accounts'
-      final businessRes = await supabase
-          .from('business_accounts') // <-- Tên bảng tài khoản doanh nghiệp
-          .select('company_name, profile_picture_url, balance') // Các cột cần lấy
-          .eq('user_id', user.id) // Lọc theo user_id của người dùng hiện tại
-          .maybeSingle(); // Lấy một bản ghi hoặc null
+      final businessRes =
+          await supabase
+              .from('business_accounts') // <-- Tên bảng tài khoản doanh nghiệp
+              .select(
+                'company_name, profile_picture_url, balance',
+              ) // Các cột cần lấy
+              .eq(
+                'user_id',
+                user.id,
+              ) // Lọc theo user_id của người dùng hiện tại
+              .maybeSingle(); // Lấy một bản ghi hoặc null
 
       // Nếu tìm thấy tài khoản doanh nghiệp
       if (businessRes != null) {
@@ -77,15 +85,15 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         _profileImageUrl = businessRes['profile_picture_url'] ?? '';
         balance = businessRes['balance'];
 
-
         // --- SỬA LỖI LẤY COUNT ---
         // 4. Lấy tất cả sản phẩm của người bán (seller)
         // Bước 1: Lấy business account ID từ user ID
-        final businessAccountRes = await supabase
-            .from('business_accounts')
-            .select('id')
-            .eq('user_id', user.id)
-            .single(); // Giả sử mỗi user chỉ có 1 business account
+        final businessAccountRes =
+            await supabase
+                .from('business_accounts')
+                .select('id')
+                .eq('user_id', user.id)
+                .single(); // Giả sử mỗi user chỉ có 1 business account
 
         final businessAccountId = businessAccountRes['id'];
 
@@ -104,16 +112,23 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         final orderCountResponse = await supabase
             .from('orders')
             .select() // Không cần select cột cụ thể khi chỉ lấy count
-            .eq('seller_id', businessAccountId) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
+            .eq(
+              'seller_id',
+              businessAccountId,
+            ) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
             .count(CountOption.exact); // <-- Lấy count chính xác
-        _totalOrders = orderCountResponse.count ?? 0; // Gán trực tiếp kết quả count
+        _totalOrders =
+            orderCountResponse.count ?? 0; // Gán trực tiếp kết quả count
 
         // Lấy số đơn hàng đang chờ xử lý (chưa giao)
         final pendingResponse = await supabase
             .from('orders')
             .select()
-            .eq('seller_id', businessAccountId) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
-            .eq('delivered', false) // Lọc đơn chưa giao
+            .eq(
+              'seller_id',
+              businessAccountId,
+            ) // <-- THAY THẾ CỘT LIÊN KẾT ĐÚNG
+            .eq('processing', true) // Lọc đơn chưa giao (đang xử lý)
             .count(CountOption.exact);
         _pendingOrders = pendingResponse.count ?? 0;
 
@@ -125,20 +140,23 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
             .select('id')
             .eq('seller_id', businessAccountId);
 
-        final orderIds = (ordersRes as List)
-            .map((order) => order['id'].toString()) // Giữ nguyên UUID
-            .toList();
+        final orderIds =
+            (ordersRes as List)
+                .map((order) => order['id'].toString()) // Giữ nguyên UUID
+                .toList();
 
-        final reviewsResponse = await supabase
-            .from('reviews')
-            .select()
-            .or(orderIds.map((id) => 'orderId.eq.$id').join(',')) // Tạo chuỗi điều kiện OR
-            .count(CountOption.exact);
-        _totalReviews = reviewsResponse.count ?? 0;
+        if (orderIds.isNotEmpty) {
+          final inList = orderIds.join(',');
+          final reviewsResponse = await supabase
+              .from('reviews')
+              .select()
+              .filter('orderId', 'in', '($inList)')
+              .count(CountOption.exact);
+          _totalReviews = reviewsResponse.count ?? 0;
+        } else {
+          _totalReviews = 0;
+        }
         // --------------------------
-
-
-
       } else {
         // Không tìm thấy tài khoản doanh nghiệp
         _hasAccount = false;
@@ -148,7 +166,10 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
       debugPrint('Lỗi khi tải dữ liệu hồ sơ cửa hàng: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Lỗi tải dữ liệu: $e'), backgroundColor: Colors.red)
+          SnackBar(
+            content: Text('Lỗi tải dữ liệu: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
         _hasAccount = false; // Đặt là false nếu có lỗi
       }
@@ -179,17 +200,27 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.storefront_outlined, size: 80, color: Colors.grey.shade400),
+                Icon(
+                  Icons.storefront_outlined,
+                  size: 80,
+                  color: Colors.grey.shade400,
+                ),
                 const SizedBox(height: 20),
                 Text(
                   "Bạn chưa đăng ký cửa hàng",
-                  style: GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: GoogleFonts.lato(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
                 Text(
                   "Hãy tạo cửa hàng của riêng bạn để bắt đầu bán hàng ngay!",
-                  style: GoogleFonts.lato(fontSize: 15, color: Colors.grey.shade700),
+                  style: GoogleFonts.lato(
+                    fontSize: 15,
+                    color: Colors.grey.shade700,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 30),
@@ -197,17 +228,28 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                   icon: const Icon(Icons.add_business_outlined),
                   label: const Text("Đăng ký cửa hàng ngay"),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-                    textStyle: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 25,
+                      vertical: 12,
+                    ),
+                    textStyle: GoogleFonts.lato(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   onPressed: () {
                     // Điều hướng đến màn hình đăng ký Bước 1
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (_) => const SignUpAndCreateBusiness1()
-                    )).then((value) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SignUpAndCreateBusiness1(),
+                      ),
+                    ).then((value) {
                       // Sau khi quay lại từ flow đăng ký (dù thành công hay không),
                       // gọi lại _loadBusinessData để cập nhật trạng thái
-                      print("Quay lại từ màn hình đăng ký, đang tải lại dữ liệu...");
+                      print(
+                        "Quay lại từ màn hình đăng ký, đang tải lại dữ liệu...",
+                      );
                       _loadBusinessData();
                     });
                   },
@@ -225,7 +267,8 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       // Không cần AppBar ở đây vì Header đã có nền
-      body: RefreshIndicator( // Cho phép kéo xuống để tải lại
+      body: RefreshIndicator(
+        // Cho phép kéo xuống để tải lại
         onRefresh: _loadBusinessData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(), // Luôn cho phép cuộn
@@ -241,12 +284,22 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Phần Upload
-                    Text("Quản lý Sản phẩm", style: GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800])),
+                    Text(
+                      "Quản lý Sản phẩm",
+                      style: GoogleFonts.lato(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
+                    ),
                     const SizedBox(height: 15),
                     Center(
                       child: ElevatedButton.icon(
                         icon: const Icon(Icons.add, color: Colors.white),
-                        label: Text("Tải Sản phẩm lên", style: GoogleFonts.lato(color: Colors.white)),
+                        label: Text(
+                          "Tải Sản phẩm lên",
+                          style: GoogleFonts.lato(color: Colors.white),
+                        ),
                         onPressed: () {
                           /// Chuyển đến trang ProductUploadPage
                           Navigator.push(
@@ -258,7 +311,10 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue[700],
-                          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 25,
+                            vertical: 12,
+                          ),
                           elevation: 4,
                         ),
                       ),
@@ -266,78 +322,187 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                     const SizedBox(height: 40),
 
                     // Phần Tóm tắt
-                    Text("Tóm tắt Đơn hàng", style: GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800])),
+                    Text(
+                      "Tóm tắt Đơn hàng",
+                      style: GoogleFonts.lato(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
+                    ),
                     const SizedBox(height: 15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildSummaryCard(context: context, count: _totalOrders, label: "Tổng đơn hàng", icon: Icons.shopping_bag_outlined, color: Colors.orange),
-                        _buildSummaryCard(context: context, count: _totalReviews, label: "Tổng đánh giá", icon: Icons.star_border_outlined, color: Colors.amber),
-                        _buildSummaryCard(context: context, count: _pendingOrders, label: "Chờ xử lý", icon: Icons.pending_actions_outlined, color: Colors.purple),
+                        Expanded(
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const BussinessOrderManagement()),
+                              );
+                              await _loadBusinessData();
+                            },
+                            child: _buildSummaryCard(
+                              context: context,
+                              count: _totalOrders,
+                              label: "Tổng đơn hàng",
+                              icon: Icons.shopping_bag_outlined,
+                              color: Colors.orange,
+                            ),
+                          ),
+                        ),
+
+                        Expanded(
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const BusinessReviewManagement()),
+                              );
+                              await _loadBusinessData();
+                            },
+                            child: _buildSummaryCard(
+                              context: context,
+                              count: _totalReviews,
+                              label: "Tổng đánh giá",
+                              icon: Icons.star_border_outlined,
+                              color: Colors.amber,
+                            ),
+                          ),
+                        ),
+
+                        // Ví dụ cho ô “Chờ xử lý”
+                        Expanded(
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () async {
+                              // 1. Mở màn PendingOrdersScreen
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const PendingOrdersScreen()),
+                              );
+                              // 2. Khi quay về, tải lại số liệu
+                              await _loadBusinessData();
+                            },
+                            child: _buildSummaryCard(
+                              context: context,
+                              count: _pendingOrders,
+                              label: "Chờ xử lý",
+                              icon: Icons.pending_actions_outlined,
+                              color: Colors.purple,
+                            ),
+                          ),
+                        ),
+
                       ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 30), // Khoảng cách trước khi hiển thị sản phẩm
+              const SizedBox(
+                height: 30,
+              ), // Khoảng cách trước khi hiển thị sản phẩm
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Sản phẩm của cửa hàng", style: GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800])),
+                    Text(
+                      "Sản phẩm của cửa hàng",
+                      style: GoogleFonts.lato(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
+                    ),
                     const SizedBox(height: 15),
 
                     _products.isEmpty
                         ? const Center(child: Text('Chưa có sản phẩm nào.'))
                         : SizedBox(
-                      height: 500, // Đặt chiều cao cố định để tránh lỗi layout
-                      child: ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: _products.length,
-                        itemBuilder: (context, index) {
-                          final product = _products[index];
-                          return Card(
-                            elevation: 4,
-                            margin: const EdgeInsets.symmetric(vertical: 10),
-                            child: ListTile(
-                              leading: SizedBox(
-                                width: 80,
-                                height: 80,
-                                child: Image.network(
-                                  product['productImage'][0],
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Icon(Icons.image_not_supported, size: 80);
-                                  },
+                          height:
+                              500, // Đặt chiều cao cố định để tránh lỗi layout
+                          child: ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: _products.length,
+                            itemBuilder: (context, index) {
+                              final product = _products[index];
+                              return Card(
+                                elevation: 4,
+                                margin: const EdgeInsets.symmetric(
+                                  vertical: 10,
                                 ),
-                              ),
-                              title: Text(product['productName'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Giá: ${product['productPrice']}', style: const TextStyle(fontSize: 16)),
-                                  Text('Giá sau giảm: ${product['discount']}', style: const TextStyle(fontSize: 17,color: Colors.red)),
-                                  Text('Số lượng: ${product['quantity']}', style: const TextStyle(fontSize: 14)),
-                                  Text('Kích thước: ${product['productSize']}', style: const TextStyle(fontSize: 14)),
-                                  Text(
-                                    product['description'],
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                child: ListTile(
+                                  leading: SizedBox(
+                                    width: 80,
+                                    height: 80,
+                                    child: Image.network(
+                                      product['productImage'][0],
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return const Icon(
+                                          Icons.image_not_supported,
+                                          size: 80,
+                                        );
+                                      },
+                                    ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                                  title: Text(
+                                    product['productName'],
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Giá: ${product['productPrice']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                      Text(
+                                        'Giá sau giảm: ${product['discount']}',
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Số lượng: ${product['quantity']}',
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                      Text(
+                                        'Kích thước: ${product['productSize']}',
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                      Text(
+                                        product['description'],
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                   ],
                 ),
               ),
               const SizedBox(height: 30),
-
             ],
           ),
         ),
@@ -346,31 +511,45 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   }
 
   // --- Widget Helper cho Header ---
-  Widget _buildHeader(BuildContext context, String name, double balance, String imageUrl) {
+  Widget _buildHeader(
+    BuildContext context,
+    String name,
+    double balance,
+    String imageUrl,
+  ) {
     final screenHeight = MediaQuery.of(context).size.height;
-    return SizedBox( // Dùng SizedBox để giới hạn chiều cao chính xác
+    return SizedBox(
+      // Dùng SizedBox để giới hạn chiều cao chính xác
       height: screenHeight * 0.45, // Chiều cao khoảng 35% màn hình
       child: Stack(
         alignment: Alignment.center, // Căn giữa các phần tử trong Stack
         clipBehavior: Clip.none, // Cho phép ảnh đại diện tràn ra ngoài
         children: [
           // Nền xanh cong
-          Positioned.fill( // Chiếm hết không gian Stack
+          Positioned.fill(
+            // Chiếm hết không gian Stack
             bottom: 50, // Để lại khoảng trống 50px ở dưới cho ảnh
             child: Container(
               decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue[800]!, Colors.lightBlue[500]!], // Màu gradient khác
-                    begin: Alignment.topLeft, end: Alignment.bottomRight,
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.blue[800]!,
+                    Colors.lightBlue[500]!,
+                  ], // Màu gradient khác
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.elliptical(150, 50),
+                ), // Tăng độ cong
+                boxShadow: [
+                  // Thêm đổ bóng cho nền
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  borderRadius: const BorderRadius.vertical(bottom: Radius.elliptical(150, 50)), // Tăng độ cong
-                  boxShadow: [ // Thêm đổ bóng cho nền
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    )
-                  ]
+                ],
               ),
             ),
           ),
@@ -389,14 +568,22 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                   child: CircleAvatar(
                     radius: 50, // Bán kính ảnh
                     backgroundColor: Colors.grey[200], // Màu nền placeholder
-                    child: ClipOval( // Đảm bảo ảnh được cắt tròn
+                    child: ClipOval(
+                      // Đảm bảo ảnh được cắt tròn
                       child: CachedNetworkImage(
                         imageUrl: imageUrl,
                         fit: BoxFit.cover,
                         width: 100, // Kích thước ảnh
                         height: 100,
-                        placeholder: (context, url) => const CupertinoActivityIndicator(), // Loading kiểu iOS
-                        errorWidget: (context, url, error) => const Icon(Icons.storefront, size: 50, color: Colors.grey), // Icon placeholder
+                        placeholder:
+                            (context, url) =>
+                                const CupertinoActivityIndicator(), // Loading kiểu iOS
+                        errorWidget:
+                            (context, url, error) => const Icon(
+                              Icons.storefront,
+                              size: 50,
+                              color: Colors.grey,
+                            ), // Icon placeholder
                       ),
                     ),
                   ),
@@ -406,27 +593,45 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                 Text(
                   name,
                   style: GoogleFonts.lato(
-                      fontSize: 22, // Tăng cỡ chữ
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [Shadow(blurRadius: 2, color: Colors.black.withOpacity(0.4), offset: const Offset(1,1))]
+                    fontSize: 22, // Tăng cỡ chữ
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 2,
+                        color: Colors.black.withOpacity(0.4),
+                        offset: const Offset(1, 1),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 6),
                 // Số dư
                 Text(
                   "Số dư của bạn",
-                  style: GoogleFonts.lato(fontSize: 14, color: Colors.white.withOpacity(0.9)),
+                  style: GoogleFonts.lato(
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   // Format số dư
-                  NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(balance),
+                  NumberFormat.currency(
+                    locale: 'vi_VN',
+                    symbol: '₫',
+                  ).format(balance),
                   style: GoogleFonts.lato(
-                      fontSize: 26, // Tăng cỡ chữ số dư
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [Shadow(blurRadius: 2, color: Colors.black.withOpacity(0.4), offset: const Offset(1,1))]
+                    fontSize: 26, // Tăng cỡ chữ số dư
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 2,
+                        color: Colors.black.withOpacity(0.4),
+                        offset: const Offset(1, 1),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -445,16 +650,23 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
     required IconData icon,
     required Color color,
   }) {
-    return Expanded( // Để các card chia sẻ không gian
+    return Expanded(
+      // Để các card chia sẻ không gian
       child: Card(
         elevation: 2, // Giảm độ nổi chút
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), // Bo góc nhiều hơn
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ), // Bo góc nhiều hơn
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 8.0), // Tăng padding dọc
+          padding: const EdgeInsets.symmetric(
+            vertical: 18.0,
+            horizontal: 8.0,
+          ), // Tăng padding dọc
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircleAvatar( // Icon trong hình tròn
+              CircleAvatar(
+                // Icon trong hình tròn
                 radius: 20,
                 backgroundColor: color.withOpacity(0.15),
                 child: Icon(icon, size: 22, color: color),
@@ -487,7 +699,8 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
 }
 
 // Widget AppBar tạm thời khi đang loading
-class _StoreAppBarPlaceholder extends StatelessWidget implements PreferredSizeWidget {
+class _StoreAppBarPlaceholder extends StatelessWidget
+    implements PreferredSizeWidget {
   const _StoreAppBarPlaceholder();
   @override
   Widget build(BuildContext context) {
@@ -498,6 +711,7 @@ class _StoreAppBarPlaceholder extends StatelessWidget implements PreferredSizeWi
       elevation: 1,
     );
   }
+
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
