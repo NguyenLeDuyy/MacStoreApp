@@ -650,48 +650,45 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
     required IconData icon,
     required Color color,
   }) {
-    return Expanded(
-      // Để các card chia sẻ không gian
-      child: Card(
-        elevation: 2, // Giảm độ nổi chút
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ), // Bo góc nhiều hơn
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 18.0,
-            horizontal: 8.0,
-          ), // Tăng padding dọc
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                // Icon trong hình tròn
-                radius: 20,
-                backgroundColor: color.withOpacity(0.15),
-                child: Icon(icon, size: 22, color: color),
+    return Card(
+      elevation: 2, // Giảm độ nổi chút
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ), // Bo góc nhiều hơn
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 18.0,
+          horizontal: 8.0,
+        ), // Tăng padding dọc
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              // Icon trong hình tròn
+              radius: 20,
+              backgroundColor: color.withOpacity(0.15),
+              child: Icon(icon, size: 22, color: color),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              NumberFormat.decimalPattern('vi_VN').format(count), // Format số
+              style: GoogleFonts.lato(
+                fontSize: 18, // Giảm cỡ chữ số
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[850],
               ),
-              const SizedBox(height: 10),
-              Text(
-                NumberFormat.decimalPattern('vi_VN').format(count), // Format số
-                style: GoogleFonts.lato(
-                  fontSize: 18, // Giảm cỡ chữ số
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[850],
-                ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.lato(
+                fontSize: 11, // Giảm cỡ chữ label
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500, // Đậm hơn chút
               ),
-              const SizedBox(height: 5),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.lato(
-                  fontSize: 11, // Giảm cỡ chữ label
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w500, // Đậm hơn chút
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
