@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:intl/intl.dart';
+
 
 class BuyersScreen extends StatefulWidget {
+  //dùng static vì có thể dùng trực tiếp tên class để truy cập
   static const String id = 'buyer_Screen';
 
   const BuyersScreen({super.key});
@@ -11,9 +14,25 @@ class BuyersScreen extends StatefulWidget {
 }
 
 class _BuyersScreenState extends State<BuyersScreen> {
+  //biến này sẽ được khởi tạo sau, chứ không cần khởi tạo ngay khi khai báo.
+  // Nhưng nó phải được gán giá trị trước khi được sử dụng
+  //Future<List<Buyer>>: Đây là một giá trị bất đồng bộ (asynchronous) kiểu Future
+  //kểu Future là kiểu gì?
+  // =>đại diện cho một giá trị sẽ có trong tương lai
+  //=>gọi một hàm mà mất thời gian để hoàn thành (ví dụ: gọi API, đọc file, đợi dữ liệu từ cơ sở dữ liệu
   late Future<List<Buyer>> _buyersFuture;
 
   @override
+  // 1. initState() là gì?
+  //    Là phương thức được gọi khi widget được tạo lần đầu tiên.
+  //    Dùng để khởi tạo biến, gọi API, hoặc chuẩn bị dữ liệu.
+  //    Chỉ chạy một lần duy nhất trong vòng đời widget.
+  // 2. super.initState();
+  //    Gọi initState() từ lớp cha (State) để đảm bảo mọi thứ hoạt động đúng.
+  //    Luôn gọi đầu tiên trong initState().
+  // 3. _buyersFuture = fetchBuyers();
+  //    Gọi hàm fetchBuyers() (một hàm bất đồng bộ), và gán kết quả Future vào biến _buyersFuture.
+  //    Sau đó, bạn sẽ dùng _buyersFuture trong FutureBuilder để hiển thị dữ liệu khi sẵn sàng.
   void initState() {
     super.initState();
     _buyersFuture = fetchBuyers();
@@ -21,12 +40,17 @@ class _BuyersScreenState extends State<BuyersScreen> {
 
   Future<List<Buyer>> fetchBuyers() async {
     try {
+      //Đợi dữ liệu trả về vì đây là thao tác bất đồng bộ
       final response = await Supabase.instance.client
           .from('buyers')
           .select()
+      //Sắp xếp theo cột created_at, mới nhất lên trước (giảm dần)
           .order('created_at', ascending: false);
 
+      //Ép kiểu response (do Supabase trả về) thành một List<dynamic>
       final List data = response as List;
+      //Duyệt từng phần tử (là Map<String, dynamic>) và
+      // dùng hàm fromJson() để chuyển nó thành Buyer
       return data.map((json) => Buyer.fromJson(json)).toList();
     } catch (e) {
       print('Error fetching buyers: $e');
@@ -102,7 +126,7 @@ class _BuyersScreenState extends State<BuyersScreen> {
                   DataCell(Text(buyer.fullName)),
                   DataCell(Text(buyer.email)),
                   DataCell(Text(buyer.city.isNotEmpty ? buyer.city : 'None')),
-                  DataCell(Text(buyer.createdAt.split('T').first)),
+                  DataCell(Text(DateFormat('dd/MM/yyyy').format(buyer.createdAt))),
                   DataCell(
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
@@ -146,7 +170,7 @@ class Buyer {
   final String fullName;
   final String email;
   final String city;
-  final String createdAt;
+  final DateTime createdAt; // <-- dùng DateTime
 
   Buyer({
     required this.uid,
@@ -162,7 +186,8 @@ class Buyer {
       fullName: json['fullName'] ?? '',
       email: json['email'] ?? '',
       city: (json['city'] ?? '').toString().trim(),
-      createdAt: json['created_at'],
+      createdAt: DateTime.parse(json['created_at']), // <-- chuyển từ chuỗi sang DateTime
     );
   }
 }
+
