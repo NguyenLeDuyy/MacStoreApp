@@ -36,23 +36,32 @@ class _BuyersScreenState extends State<BuyersScreen> {
 
   Future<void> deleteBuyer(String uid) async {
     try {
+      // Xóa bản ghi business_account nếu tồn tại
+      await Supabase.instance.client
+          .from('business_accounts')
+          .delete()
+          .eq('user_id', uid);
+
+      // Sau đó xóa buyer
       await Supabase.instance.client
           .from('buyers')
           .delete()
           .eq('uid', uid);
-      print('Buyer deleted: $uid');
+
+      print('Buyer and associated business account deleted: $uid');
 
       // Cập nhật lại danh sách sau khi xóa
       setState(() {
         _buyersFuture = fetchBuyers();
       });
     } catch (e) {
-      print('Error deleting buyer: $e');
+      print('Error deleting buyer or business account: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to delete buyer')),
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
